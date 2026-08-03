@@ -3,8 +3,8 @@ import { Link } from "react-router-dom"
 function Home (){
     return(
         <div>
-            <h1> Home </h1>
-            <Link to="/dashboard">
+            <div id="header"> <h1> Thinkable </h1> </div>
+            <Link id="yes" to="/dashboard">
                 Open Dashboard
             </Link>  
         </div>
