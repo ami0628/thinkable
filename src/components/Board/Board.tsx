@@ -62,7 +62,7 @@ function Board(){
     const screenToFlowPosition = useReactFlow().screenToFlowPosition;
 
     function handleClick(data: { clientX: any; clientY: any; }){
-        if (Date.now() - lastClick <= 250){ handleDoubleClick(data); console.log("hello") }
+        if (Date.now() - lastClick <= 250){ handleDoubleClick(data); }
         lastClick = Date.now();
         return
     }
@@ -88,7 +88,6 @@ function Board(){
                 content:""
             }
         }
-        console.log(newNote)
         setNodes(currentItems =>[...currentItems, newNote])
     }
 
