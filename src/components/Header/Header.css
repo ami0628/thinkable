@@ -1,0 +1,14 @@
+header {
+    height: var(--header-height);
+    background-color: var(--surface);
+    border-bottom: solid 2px var(--border);
+
+    color: var(--primary);
+    font-size: 1.5em;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    padding-left: 1%;
+    padding-right: 1%;
+}

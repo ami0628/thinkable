@@ -4,6 +4,7 @@
   --surface: #EBE6FF;          /* Sidebar / panels */
   --surface-light: #F9F7FF;    /* Cards, dropdowns */
   --surface-hover: #E2DAFF;    /* Hover states */
+  --surface-other: #C0C0FF;
 
   /* Text */
   --text-primary: #0D0417;     /* Main headings */
@@ -40,8 +41,22 @@
   --shadow-md: 0 8px 24px rgba(13, 4, 23, 0.12);
 
   /* Animation */
-  --transition-fast: 150ms ease;
+  --transition-fast: 150ms ease-in-out;
   --transition-normal: 250ms ease;
+
+  /* React Flow Controls */
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-hover);
+  --xy-controls-button-color: var(--text-primary);
+  --xy-controls-button-border-color: var(--border);
+
+  /* React Flow Background */
+  --xy-background-color: var(--background);
+  --xy-background-pattern-color: var(--primary);
+}
+
+.clickable:hover{
+  cursor: pointer;
 }
 
 
