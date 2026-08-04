@@ -1,10 +1,12 @@
 import "./Note.css"
 
-function Note(){
+function Note(props: { data: any; }){
+    const data = props.data
     return(
         <div className="note">
-            <h3> Example Note</h3>
-            <p> Note content goes here </p>
+            {/* if data exists, use that, otherwise default */}
+            <h3> {data.title ? data.title : "New Note" }</h3>
+            <p> {data.content ? data.content : "Content will display here"} </p>
         </div>
     )
 }
