@@ -28,45 +28,29 @@
     font-size: 0.5em;
 }
 
-
-.note input,.note textarea{
-    width: 100%;
-    border: solid 1px var(--note-border);
-    border-radius: var(--radius-sm);
-    padding:1%;
-    background-color: var(--surface-light);
-     transition: var(--transition-fast);
-}
-
-.note input:focus,.note textarea:focus{
-    box-shadow: none;
-    outline: none;
-    border:solid 1px var(--primary) !important;
-}
-
-.note input:hover,.note textarea:hover{
-    border:solid 1px var(--primary-other);
-}
-
-.note textarea{
-    flex:1;
-}
-
-.note button{
-    width: 75%;
-    background-color: var(--primary);
-    box-shadow: none;
-    outline: none;
-    border-radius:var(--radius-sm);
-    color:var(--border);
-}
-
-.editing{
+.note h3{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    height:100%;
-    flex:1;
+}
+
+.icon{
+    width:1.5em;
+    height:1.5em;
+    color:var(--text-muted);
+    transition: var(--transition-fast);
+    border-radius:3px;
+    padding:5%;
+    margin-bottom:2px;
+}
+.icon:hover{
+    cursor:pointer;
+    color:var(--text-secondary);
+    background-color: var(--surface-hover);
+}
+
+.icons{
+    display: flex;
+    gap:0.1em;
 }
