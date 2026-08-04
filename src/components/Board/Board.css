@@ -1,4 +1,4 @@
-main {
+.board-container {
     width: calc(100vw - var(--sidebar-width));
     height: calc(100vh - var(--header-height));
 }
