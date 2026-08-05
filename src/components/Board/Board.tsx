@@ -97,22 +97,6 @@ function Board(){
         setNodes(currentItems =>[...currentItems, newNote])
     }
 
-    // function onExpand(noteProps:any){
-    //     const noteData = noteProps.data;
-    //     const newExpandedNote = {
-    //         id: crypto.randomUUID(),
-    //         type:"expandedNote",
-    //         position:getCenterOfView(),
-    //         data:{
-    //             title: noteData.title,
-    //             content: noteData.content,
-    //             originalId: noteProps.id,
-    //             onExit
-    //         },
-    //     }
-    //     setNodes(currentItems =>[...currentItems, newExpandedNote])
-    // }
-
     function onExpand(noteProps:any){
         const noteData = noteProps.data;
         const newExpandedNote = {
@@ -148,16 +132,17 @@ function Board(){
         setExpandedNotes( current => current.filter(note => note.noteId !== noteId))
     }
 
-
-    function displayExpandedNotes(){
-        expandedNotes.map(note =>
-            <ExpandedNote
-                key={note.noteId}
-                data={note}
-                onExit={onExit}
-            />
-        )
+    function updateExpandedNotePosition(noteId:string, position:{x:number, y:number}){
+        setExpandedNotes(current =>
+            current.map(note =>
+                // if note is the one being dragged, update position,    (spread used like this updates the position as key cannot exist twice)
+                {if (note.noteId == noteId) {return {...note, position}}
+                //otherwise, return unchanged
+                else {return note;}}
+            )
+        );
     }
+
 
 
     return(
@@ -172,6 +157,7 @@ function Board(){
                     key={note.noteId}
                     data={note}
                     onExit={onExit}
+                    updatePosition={updateExpandedNotePosition}
                 />
             )}
         </main>
