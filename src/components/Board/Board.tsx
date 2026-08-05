@@ -8,7 +8,6 @@ import { useState } from "react"
 
 const nodeTypes = {
     note: Note,
-    expandedNote: ExpandedNote
 };
 
 type NoteData = {
@@ -17,19 +16,23 @@ type NoteData = {
     onExpand: (data:any) => void
 }
 
-type ExpandedNoteData = {
-    title: string,
-    content: string,
-    originalId: string,
-    onExit: (id:string, originalId:string, data:any, context:string) => void
+type ExpandedWindow = {
+    noteId: string,
+    title:string,
+    content:string,
+    position:{
+        x:number,
+        y:number
+    }
 }
 
-type BoardNode = Node<NoteData | ExpandedNoteData>
+type BoardNode = Node<NoteData>
 
 let lastClick = 0;
 
 function Board(){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
+    const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
 
 
     function updateNodeData(id: string, newData:any){
@@ -54,10 +57,7 @@ function Board(){
         );
     }
 
-    function removeNode(id:string){
-        console.log("close")
-        setNodes(currentNodes => currentNodes.filter(node => node.id !== id))
-    }
+    function removeNode(id:string) {setNodes(currentNodes => currentNodes.filter(node => node.id !== id))}
 
     function handleNodeChanges(changes:any) {
         setNodes((nodes) => applyNodeChanges(changes, nodes))
@@ -97,28 +97,66 @@ function Board(){
         setNodes(currentItems =>[...currentItems, newNote])
     }
 
+    // function onExpand(noteProps:any){
+    //     const noteData = noteProps.data;
+    //     const newExpandedNote = {
+    //         id: crypto.randomUUID(),
+    //         type:"expandedNote",
+    //         position:getCenterOfView(),
+    //         data:{
+    //             title: noteData.title,
+    //             content: noteData.content,
+    //             originalId: noteProps.id,
+    //             onExit
+    //         },
+    //     }
+    //     setNodes(currentItems =>[...currentItems, newExpandedNote])
+    // }
+
     function onExpand(noteProps:any){
         const noteData = noteProps.data;
         const newExpandedNote = {
-            id: crypto.randomUUID(),
-            type:"expandedNote",
-            position:{
-                x:400,
-                y:400
-            },
-            data:{
-                title: noteData.title,
-                content: noteData.content,
-                originalId: noteProps.id,
-                onExit
-            },
+            noteId: noteProps.id,
+            title: noteData.title,
+            content: noteData.content,
+            position:getCenterOfView()
         }
-        setNodes(currentItems =>[...currentItems, newExpandedNote])
+        // function inside - gives latest version of data
+        // ... turns     ...arrayA, x --> a,b,c,x    where arrayA = [a,b,c]  SPREAD
+        setExpandedNotes(current =>{
+            // is there some note with the same id as the one we are opening
+            const alreadyOpen = current.some(note => note.noteId == noteProps.id);
+            //yes, return array as is
+            if (alreadyOpen) {return current;}
+            //no, add node and return
+            return([...current, newExpandedNote])
+        }
+        );
     }
 
-    function onExit(id:string, originalId:string, data:any, context:string){
-        if (context == "save"){updateNodeData(originalId, data);};
-        removeNode(id);
+    function getCenterOfView(){
+        const center = {
+            x: (window.innerWidth / 2) - 250,
+            y: 80
+        }
+        return center
+    }
+
+    function onExit(noteId:string, data:any, context:string){
+        if (context == "save"){updateNodeData(noteId, data);};
+        // list of EN becomes the result of: [allow all notes where noteId is not the one being deleted]
+        setExpandedNotes( current => current.filter(note => note.noteId !== noteId))
+    }
+
+
+    function displayExpandedNotes(){
+        expandedNotes.map(note =>
+            <ExpandedNote
+                key={note.noteId}
+                data={note}
+                onExit={onExit}
+            />
+        )
     }
 
 
@@ -129,6 +167,13 @@ function Board(){
                 <Background/>
                 <Controls />
             </ReactFlow>
+            {expandedNotes.map(note =>
+                <ExpandedNote
+                    key={note.noteId}
+                    data={note}
+                    onExit={onExit}
+                />
+            )}
         </main>
     );
 }
