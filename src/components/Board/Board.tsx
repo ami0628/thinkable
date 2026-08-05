@@ -75,10 +75,14 @@ function Board(){
     function handleDoubleClick(data: { clientX: any; clientY: any; }){
         // convert screen cursor positions into positions within the flow
         // screenToFlowPosition takes two coords and returns two coords - set position to result of func
-        const position = screenToFlowPosition({
+        let position = screenToFlowPosition({
             x:data.clientX,
             y:data.clientY
         });
+        position = {
+            x:position.x - 100,
+            y:position.y - 75
+        }
 
         // create new note and add to end of note list
         const newNote = {
@@ -147,8 +151,8 @@ function Board(){
 
     return(
         <main className="board-container">
-            <ReactFlow nodes={nodes} fitView nodeTypes={nodeTypes} nodesDraggable={true} minZoom={0.1} maxZoom={8} zoomOnDoubleClick={false}
-            onNodesChange={handleNodeChanges} onPaneClick={handleClick}>
+            <ReactFlow nodes={nodes} nodeTypes={nodeTypes} nodesDraggable={true} minZoom={0.1} maxZoom={8} zoomOnDoubleClick={false}
+            onNodesChange={handleNodeChanges} onPaneClick={handleClick} >
                 <Background/>
                 <Controls />
             </ReactFlow>
