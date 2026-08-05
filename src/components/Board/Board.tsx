@@ -21,7 +21,7 @@ type ExpandedNoteData = {
     title: string,
     content: string,
     originalId: string,
-    updateNodeData: (id:string, data:any) => void
+    onExit: (id:string, originalId:string, data:any, context:string) => void
 }
 
 type BoardNode = Node<NoteData | ExpandedNoteData>
@@ -29,38 +29,16 @@ type BoardNode = Node<NoteData | ExpandedNoteData>
 let lastClick = 0;
 
 function Board(){
-    const [nodes, setNodes] = useState<BoardNode[]>([
-        {
-            id:crypto.randomUUID(),
-            type:"note",
-            position:{
-                x:200,
-                y:200
-            },
-            data:{
-                title:"test1",
-                content:"test1content",
-                onExpand
-            }
-        },
-        {
-            id:crypto.randomUUID(),
-            type:"note",
-            position:{
-                x:300,
-                y:600
-            },
-            data:{
-                title:"test2",
-                content:"test2content",
-                onExpand
-            }
-        }
-        
-    ]);
+    const [nodes, setNodes] = useState<BoardNode[]>([]);
 
 
     function updateNodeData(id: string, newData:any){
+        newData = {
+            title:newData.title,
+            content:newData.content,
+            onExpand
+        }
+        console.log("save")
         setNodes(
             // go through all nodes
             // map(x => y) means "replace each x with y", here y is an expression
@@ -74,6 +52,11 @@ function Board(){
                 node
             )
         );
+    }
+
+    function removeNode(id:string){
+        console.log("close")
+        setNodes(currentNodes => currentNodes.filter(node => node.id !== id))
     }
 
     function handleNodeChanges(changes:any) {
@@ -114,7 +97,8 @@ function Board(){
         setNodes(currentItems =>[...currentItems, newNote])
     }
 
-    function onExpand(noteData:any){
+    function onExpand(noteProps:any){
+        const noteData = noteProps.data;
         const newExpandedNote = {
             id: crypto.randomUUID(),
             type:"expandedNote",
@@ -125,15 +109,18 @@ function Board(){
             data:{
                 title: noteData.title,
                 content: noteData.content,
-                originalId: noteData.id,
-                updateNodeData
+                originalId: noteProps.id,
+                onExit
             },
         }
         setNodes(currentItems =>[...currentItems, newExpandedNote])
     }
 
+    function onExit(id:string, originalId:string, data:any, context:string){
+        if (context == "save"){updateNodeData(originalId, data);};
+        removeNode(id);
+    }
 
-    
 
     return(
         <main className="board-container">
