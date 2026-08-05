@@ -12,7 +12,7 @@ const nodeTypes = {
 
 type NoteData = {
     title: string,
-    content: string,
+    text: string,
     width:number,
     height:number,
     expandedWidth:number,
@@ -21,10 +21,14 @@ type NoteData = {
     updateNoteSize: (id:string, size:{width:number, height:number}) => void
 }
 
+type NoteData2 = {
+    
+}
+
 type ExpandedWindow = {
     noteId: string,
     title:string,
-    content:string,
+    text:string,
     width: number,
     height: number,
     position:{
@@ -46,7 +50,7 @@ function Board(){
         if (context=="save"){
             newData = {
                 title:newData.title,
-                content:newData.content,
+                text:newData.text,
                 expandedWidth:newData.expandedWidth,
                 expandedHeight:newData.expandedHeight,
                 onExpand
@@ -111,7 +115,7 @@ function Board(){
             },
             data:{
                 title:"",
-                content:"",
+                text:"",
                 width:200,
                 height:150,
                 expandedWidth:400,
@@ -128,7 +132,7 @@ function Board(){
         const newExpandedNote = {
             noteId: noteProps.id,
             title: noteData.title,
-            content: noteData.content,            
+            text: noteData.text,            
             width: noteData.expandedWidth ?? 400,
             height: noteData.expandedHeight ?? 400,
             position:getCenterOfView()

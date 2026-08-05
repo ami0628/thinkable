@@ -10,36 +10,35 @@
 
     color:var(--text-primary);
     
-    min-height:60px;
-    min-width:150px;
+    min-height:70px;
+    overflow:hidden;
 }
 
 .note h3{
     padding: 0;
     margin: 0;
-    font-size: 0.7em;
+    font-size: 1em;
+    max-width: calc(100% - 40px);
+    text-wrap: nowrap;
+}
+
+.noteHeader{
     border-bottom: solid 1px var(--note-border);
     border-radius: 1px;
-}
-
-.note p{
-    font-size: 0.5em;
-}
-
-.note h3{
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    width:100%;
 }
 
-.icon{
+
+.note .icon{
     width:1.5em;
     height:1.5em;
     color:var(--text-muted);
     transition: var(--transition-fast);
     border-radius:3px;
-    padding:5%;
+    padding:4px;
     margin-bottom:2px;
 }
 .icon:hover{
@@ -60,4 +59,23 @@
     width:15px;
     height:15px;
     cursor:nwse-resize;
+}
+
+.note .textContainer{
+    display:flex;
+    padding-top: 3px;
+    margin:0;
+    overflow: auto;
+    flex:1;
+}
+
+.textDisplay{
+    border:none;  
+    background: transparent;
+    flex:1;
+    resize:none;
+    overflow: auto;
+    white-space: pre-wrap;
+    height: 100%;
+    font-size: 0.7em;
 }

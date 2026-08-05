@@ -42,7 +42,7 @@ function ExpandedNote (props:any){
     }
 
     const [title,setTitle] = useState(data.title ? data.title : "New Note");
-    const [content, setContent] = useState(data.content ? data.content : "Content will display here");
+    const [text, setText] = useState(data.text ? data.text : "Text will display here");
 
     const noteRef = useRef<HTMLDivElement>(null);
     // save size between closing
@@ -78,7 +78,7 @@ function ExpandedNote (props:any){
         resizeTitle();
     }, [title])
 
-    function handleExit(context:string) {props.onExit(data.noteId,{title:title, content:content, expandedWidth:data.width, expandedHeight:data.height},context)}
+    function handleExit(context:string) {props.onExit(data.noteId,{title:title, text:text, expandedWidth:data.width, expandedHeight:data.height},context)}
     
     return(
         <div className="expandedNote nowheel" style={{left:data.position.x, top:data.position.y, width:data.width, height:data.height}} ref={noteRef}>
@@ -89,7 +89,7 @@ function ExpandedNote (props:any){
                 </div>
             </div>
             <div className="expandedNoteNoDrag">
-                <textarea className="contentInput nodrag" value={content} onChange={(event) => setContent(event.target.value)} onMouseDown={(event)=>event.stopPropagation()}/>
+                <textarea className="textInput nodrag" value={text} onChange={(event) => setText(event.target.value)} onMouseDown={(event)=>event.stopPropagation()}/>
             </div>
         </div>
     )
