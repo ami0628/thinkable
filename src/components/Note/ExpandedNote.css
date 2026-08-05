@@ -17,6 +17,8 @@
     /* transition: var(--transition-fast); */
     position: absolute;
     gap: 10px;
+
+    overflow-x: none;
 }
 
 .expandedNote h3{
@@ -33,6 +35,9 @@
     border: none !important;
     font-size: 1.2em;
     font-weight: bold;
+    text-overflow: ellipsis;
+    min-width:20px;
+    max-width:calc(100% - 60px);
 }
 
 .expandedNoteHeader{
