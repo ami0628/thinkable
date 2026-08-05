@@ -85,14 +85,14 @@ function Note(props:any){
 
     if (titleMode){
         return(
-            <div className="titleModeNote" onDoubleClick={toggleTitleMode}>
+            <div className={`titleModeNote ${pinned ? "pinned" : ""}`} onDoubleClick={toggleTitleMode}>
                 <h3> {data.title ? data.title : "New Note"} </h3>
             </div>
         );
     }
     else{
     return(
-        <div className="note nowheel" onDoubleClick={() => data.onExpand(props)} style={{width:data.width, height:data.height, minWidth:minWidth}}>
+        <div className={`note nowheel ${pinned ? "pinned" : ""}`} onDoubleClick={() => data.onExpand(props)} style={{width:data.width, height:data.height, minWidth:minWidth}}>
             <div className="helpResize">
                 {/* if data exists, use that, otherwise default */}
                 <div className="noteHeader">

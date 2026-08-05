@@ -1,6 +1,6 @@
 .note{
     background-color: var(--surface);
-    border: solid 1px var(--note-border);
+    border: solid 1px var(--primary-other);
     border-radius: var(--radius-sm);
     box-shadow: 0 1px 3px var(--note-shadow);
     padding:10px;
@@ -14,6 +14,16 @@
     overflow:hidden;
 }
 
+.note.pinned, .note.pinned .noteHeader{
+    border-color: var(--primary);
+    background-color: var(--surface-hover);
+}
+
+.note.pinned{
+    border-width: 2px;
+}
+
+
 .note h3{
     padding: 0;
     margin: 0;
@@ -23,7 +33,7 @@
 }
 
 .noteHeader{
-    border-bottom: solid 1px var(--note-border);
+    border-bottom: solid 1px var(--primary-other);
     border-radius: 1px;
     display: flex;
     justify-content: space-between;
@@ -94,11 +104,16 @@
 
     background-color: var(--surface);
 
-    border: solid 1px var(--note-border);
+    border: solid 1px var(--primary-other);
     border-radius: var(--radius-sm);
 
     color: var(--text-primary);
 }
 .titleModeNote h3{
     margin: 0;
+}
+
+.titleModeNote.pinned{
+    border: solid 2px var(--primary);
+    background-color: var(--surface-hover);
 }
