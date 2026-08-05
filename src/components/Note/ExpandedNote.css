@@ -19,6 +19,7 @@
     gap: 10px;
 
     overflow-x: none;
+    border: solid 1px var(--primary-other);
 }
 
 .expandedNote h3{
@@ -109,6 +110,7 @@
     padding-bottom: 0;
     cursor:grab;
     background-color: var(--surface-hover);
+    border-bottom: solid 1px var(--primary-other);
 }
 
 .expandedNoteDragPoint.grabbing{
