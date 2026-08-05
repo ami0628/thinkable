@@ -13,13 +13,20 @@ const nodeTypes = {
 type NoteData = {
     title: string,
     content: string,
-    onExpand: (data:any) => void
+    width:number,
+    height:number,
+    expandedWidth:number,
+    expandedHeight:number,
+    onExpand: (data:any) => void,
+    updateNoteSize: (id:string, size:{width:number, height:number}) => void
 }
 
 type ExpandedWindow = {
     noteId: string,
     title:string,
     content:string,
+    width: number,
+    height: number,
     position:{
         x:number,
         y:number
@@ -35,13 +42,23 @@ function Board(){
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
 
 
-    function updateNodeData(id: string, newData:any){
-        newData = {
-            title:newData.title,
-            content:newData.content,
-            onExpand
+    function updateNodeData(id: string, newData:any, context:string){
+        if (context=="save"){
+            newData = {
+                title:newData.title,
+                content:newData.content,
+                expandedWidth:newData.expandedWidth,
+                expandedHeight:newData.expandedHeight,
+                onExpand
+            }
         }
-        console.log("save")
+        else{
+            newData = {
+                expandedWidth:newData.expandedWidth,
+                expandedHeight:newData.expandedHeight,
+                onExpand
+            }
+        }
         setNodes(
             // go through all nodes
             // map(x => y) means "replace each x with y", here y is an expression
@@ -49,7 +66,7 @@ function Board(){
                 // if node matches id
                 node.id === id ? {
                     // replaces node's data with new data
-                    ...node, data:newData
+                    ...node, data:{...node.data, ...newData}
                 } :
                 //otherwise, returns the original node
                 node
@@ -95,7 +112,12 @@ function Board(){
             data:{
                 title:"",
                 content:"",
-                onExpand
+                width:200,
+                height:150,
+                expandedWidth:400,
+                expandedHeight:400,
+                onExpand,
+                updateNoteSize
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])
@@ -106,7 +128,9 @@ function Board(){
         const newExpandedNote = {
             noteId: noteProps.id,
             title: noteData.title,
-            content: noteData.content,
+            content: noteData.content,            
+            width: noteData.expandedWidth ?? 400,
+            height: noteData.expandedHeight ?? 400,
             position:getCenterOfView()
         }
         // function inside - gives latest version of data
@@ -131,7 +155,7 @@ function Board(){
     }
 
     function onExit(noteId:string, data:any, context:string){
-        if (context == "save"){updateNodeData(noteId, data);};
+        updateNodeData(noteId, data, context);
         // list of EN becomes the result of: [allow all notes where noteId is not the one being deleted]
         setExpandedNotes( current => current.filter(note => note.noteId !== noteId))
     }
@@ -140,11 +164,39 @@ function Board(){
         setExpandedNotes(current =>
             current.map(note =>
                 // if note is the one being dragged, update position,    (spread used like this updates the position as key cannot exist twice)
-                {if (note.noteId == noteId) {return {...note, position}}
+                {if (note.noteId == noteId) {return {...note, position:position}}
                 //otherwise, return unchanged
                 else {return note;}}
             )
         );
+    }
+
+    function updateExpandedNoteSize(noteId:string, size:{width:number, height:number}){
+        setExpandedNotes(current =>
+            current.map(note => { 
+                if (note.noteId == noteId) { return {...note, ...size}}
+                else {return note}
+            })
+        )
+    }
+
+    function updateNoteSize(noteId:string, size:{width:number,height:number}){
+        // node list becomes...
+        setNodes(current =>
+            // the list of 'each note becomes'...
+            current.map( note =>
+                {
+                    // either its updated self
+                    if (note.id == noteId){
+                        // all note params where data is replaced by
+                        // {all data params, with size params replaced}
+                        return {...note, data:{...note.data, ...size}};
+                    }
+                    // or original self
+                    else {return note;}
+                }
+            )
+        )
     }
 
 
@@ -162,6 +214,7 @@ function Board(){
                     data={note}
                     onExit={onExit}
                     updatePosition={updateExpandedNotePosition}
+                    updateSize={updateExpandedNoteSize}
                 />
             )}
         </main>

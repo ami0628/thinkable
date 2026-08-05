@@ -1,6 +1,8 @@
 .expandedNote{
-    width: 20vw;
-    height: 55vh;
+    resize:both;
+    overflow:hidden;
+    min-height:100px;
+    min-width:250px;
 
     background-color: var(--surface);
     border: solid 1px var(--note-border);
@@ -14,8 +16,6 @@
 
     /* transition: var(--transition-fast); */
     position: absolute;
-
-    padding:20px;
     gap: 10px;
 }
 
@@ -29,13 +29,14 @@
 }
 
 .titleInput{
-    background-color: var(--surface);
+    background-color: var(--surface-hover);
     border: none !important;
-    flex:1;
+    font-size: 1.2em;
+    font-weight: bold;
 }
 
 .expandedNoteHeader{
-    background-color: var(--surface);
+    background-color: var(--surface-hover);
     border: none;
     border-bottom: solid 1px var(--note-border);
     transition: var(--transition-fast);
@@ -75,13 +76,34 @@
     font-size: 0.8em;
 }
 
-.icon:hover{
+.expandedNote .icon:hover{
     cursor:pointer;
     color:var(--text-secondary);
+    background-color: var(--surface);
+}
+
+.expandedNote .icons{
+    display: flex;
+    gap:0.1em;
     background-color: var(--surface-hover);
 }
 
-.icons{
+.expandedNoteDragPoint{
+    width: 100%;
+    padding: 20px;
+    padding-bottom: 0;
+    cursor:grab;
+    background-color: var(--surface-hover);
+}
+
+.expandedNoteDragPoint.grabbing{
+    cursor:grabbing;
+}
+
+.expandedNoteNoDrag{
     display: flex;
-    gap:0.1em;
+    flex:1;
+    width: 100%;
+    padding: 20px;
+    padding-top: 0;
 }
