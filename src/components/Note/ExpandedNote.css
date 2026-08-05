@@ -1,0 +1,86 @@
+.expandedNote{
+    width: 20vw;
+    height: 55vh;
+
+    background-color: var(--surface);
+    border: solid 1px var(--note-border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 1px 3px var(--note-shadow);
+
+    display: flex;
+    flex-direction: column;
+
+    color:var(--text-primary);
+
+    transition: var(--transition-fast);
+
+    padding:5%;
+    gap:2.5%;
+}
+
+.expandedNote h3{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.titleInput{
+    background-color: var(--surface);
+    border: none !important;
+    flex:1;
+}
+
+.expandedNoteHeader{
+    background-color: var(--surface);
+    border: none;
+    border-bottom: solid 1px var(--note-border);
+    transition: var(--transition-fast);
+    display: flex;
+    justify-content: space-between;
+}
+
+.contentInput{
+    flex:1;
+    background-color: var(--surface);
+    border-radius: var(--radius-sm);
+    border:solid 1px var(--surface);
+    transition: var(--transition-fast);
+}
+
+.contentInput:focus, .titleInput:focus{
+    outline:none;
+    box-shadow: none;
+}
+
+.expandedNoteHeader:has(.titleInput:focus), .contentInput:focus{
+    border-color: var(--primary) !important;
+}
+
+.contentInput:hover, .expandedNoteHeader:has(.titleInput:hover){
+    border-color: var(--primary-other);
+}
+
+.expandedNote input{
+    padding: 0;
+    margin: 0;
+    border-bottom: solid 1px var(--note-border);
+    border-radius: 1px;
+}
+
+.expandedNote textArea{
+    font-size: 0.8em;
+}
+
+.icon:hover{
+    cursor:pointer;
+    color:var(--text-secondary);
+    background-color: var(--surface-hover);
+}
+
+.icons{
+    display: flex;
+    gap:0.1em;
+}
