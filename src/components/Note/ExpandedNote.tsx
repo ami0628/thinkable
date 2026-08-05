@@ -36,6 +36,9 @@ function ExpandedNote (props:any){
     function stopDrag(){
         dragging.current = (false);
         setGrabbing(false)
+
+        window.removeEventListener("mousemove", drag)
+        window.removeEventListener("mouseup", stopDrag)
     }
 
     const [title,setTitle] = useState(data.title ? data.title : "New Note");
