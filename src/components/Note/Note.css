@@ -74,8 +74,31 @@
     background: transparent;
     flex:1;
     resize:none;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x:hidden;
     white-space: pre-wrap;
     height: 100%;
     font-size: 0.7em;
+}
+
+.helpResize{
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.titleModeNote{
+    max-height: fit-content;
+    max-width: fit-content;
+
+    padding:5px;
+
+    background-color: var(--surface);
+
+    border: solid 1px var(--note-border);
+    border-radius: var(--radius-sm);
+
+    color: var(--text-primary);
+}
+.titleModeNote h3{
+    margin: 0;
 }

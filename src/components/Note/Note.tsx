@@ -1,18 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import "./Note.css"
-import { Pin, PinOff, Ellipsis, Expand} from "lucide-react"
+import { Pin, PinOff, Ellipsis, SquarePen} from "lucide-react"
 import { useReactFlow } from "@xyflow/react";
 
 function Note(props:any){
+    const [titleMode,setTitleMode] = useState(false)
     const [pinned,setPinned] = useState(false)
     const data = props.data
 
+    function toggleTitleMode() {
+        setTitleMode(!titleMode)
+    }
     function togglePinned() {setPinned(!pinned);}
 
     const resizing = useRef(false);
     const start = useRef({x:0, y:0, width:data.width, height:data.height});
 
     function startResize(event:React.MouseEvent){
+        if (titleMode) {return}
         event.stopPropagation();
         event.preventDefault();
 
@@ -34,6 +39,7 @@ function Note(props:any){
     const { getZoom } = useReactFlow();
 
     function resize(event:MouseEvent){
+        if (titleMode) {return}
         if(!resizing.current){return;}
 
         const zoom = getZoom();
@@ -62,6 +68,7 @@ function Note(props:any){
     const [minWidth,setMinWidth] = useState(data.width);
     
     useEffect(() => {
+        if (titleMode) {return}
         if(!titleRef.current || !iconsRef.current) return;
 
         const observer = new ResizeObserver(() => {
@@ -74,28 +81,36 @@ function Note(props:any){
 
         return () => observer.disconnect();
 
-    }, []);
+    }, [titleMode]);
 
+    if (titleMode){
+        return(
+            <div className="titleModeNote" onDoubleClick={toggleTitleMode}>
+                <h3> {data.title ? data.title : "New Note"} </h3>
+            </div>
+        );
+    }
+    else{
     return(
         <div className="note nowheel" onDoubleClick={() => data.onExpand(props)} style={{width:data.width, height:data.height, minWidth:minWidth}}>
-            <div>
+            <div className="helpResize">
                 {/* if data exists, use that, otherwise default */}
                 <div className="noteHeader">
                     <h3 ref={titleRef}> {data.title ? data.title : "New Note"} </h3>
                     <div className="icons nodrag nopan" ref={iconsRef}> 
-                        <Expand onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />{!pinned? 
+                        <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />{!pinned? 
                         <Pin onClick={(event) => {event.stopPropagation(); togglePinned()}} className="icon"/> : 
                         <PinOff onClick={togglePinned} className="icon"/>} 
-                        <Ellipsis className="icon"/> </div>
-                    </div> 
-                </div>
-                <div className="textContainer">
-                    {/* <p>{data.text ? data.text : "Text will display here"}</p> */}
-                    <div className="textDisplay">{data.text ? data.text : "Text will display here"}</div>
-                </div>          
+                        <Ellipsis className="icon" onClick={toggleTitleMode}/> 
+                    </div>
+                </div> 
+            </div>
+            <div className="textContainer">
+                <div className="textDisplay">{data.text ? data.text : "Text will display here"}</div>
+            </div>          
             <div className="resize-handle nodrag nopan" onMouseDown={startResize}> </div>
         </div>
-    )
+    )}
 }
 
 export default Note;
