@@ -7,9 +7,6 @@ function Note(props:any){
     const [titleMode,setTitleMode] = useState(false)
     function toggleTitleMode() {setTitleMode(!titleMode);}
 
-    const [pinned,setPinned] = useState(false)
-    function togglePinned() {setPinned(!pinned);}
-
     const data = props.data
 
     const resizing = useRef(false);
@@ -100,22 +97,24 @@ function Note(props:any){
 
     if (titleMode){
         return(
-            <div className={`titleModeNote ${pinned ? "pinned" : ""}`} onDoubleClick={toggleTitleMode}>
+            <div className={`titleModeNote ${data.pinned ? "pinned" : ""}`} onDoubleClick={toggleTitleMode}>
                 <h3> {data.title ? data.title : "New Note"} </h3>
             </div>
         );
     }
     else{
     return(
-        <div className={`note nowheel ${pinned ? "pinned" : ""}`} style={{width:data.width, height:data.height, minWidth:minWidth}}>
+        <div className={`note nowheel ${data.pinned ? "pinned" : ""}`} style={{width:data.width, height:data.height, minWidth:minWidth}}>
             <div className="helpResize">
                 {/* if data exists, use that, otherwise default */}
                 <div className="noteHeader">
                     <h3 ref={titleRef} onDoubleClick={() => data.onExpand(props)}> {data.title} </h3>
                     <div className="icons nodrag nopan" ref={iconsRef}> 
-                        <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />{!pinned? 
-                        <Pin onClick={(event) => {event.stopPropagation(); togglePinned()}} className="icon"/> : 
-                        <PinOff onClick={togglePinned} className="icon"/>} 
+                        <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />
+                        {!data.pinned? 
+                            <Pin onClick={(event) => {event.stopPropagation(); data.togglePinnedNote({noteId:props.id, title:data.title, text:data.text});}} className="icon"/> 
+                            : 
+                            <PinOff onClick={(event) => {event.stopPropagation(); data.togglePinnedNote({noteId:props.id, title:data.title, text:data.text});}} className="icon"/>} 
                         <Ellipsis className="icon" onClick={(event)=> {event.stopPropagation(); toggleMenuOpen()}}/> 
                     </div>
                 </div> 

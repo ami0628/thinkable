@@ -5,7 +5,7 @@ import "@xyflow/react/dist/style.css";
 import Note from "../Note/Note";
 import ExpandedNote from "../Note/ExpandedNote"
 import Popup from "../Popup/Popup";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const nodeTypes = {
     note: Note,
@@ -18,10 +18,12 @@ type NoteData = {
     height:number,
     expandedWidth:number,
     expandedHeight:number,
+    pinned:boolean,
     onExpand: (data:any) => void,
     updateNoteSize: (id:string, size:{width:number, height:number}) => void,
     removeNode: (id:string) => void,
-    requestPopup:(action:"close"|"delete"|"save", noteId:string) => void
+    requestPopup:(action:"close"|"delete"|"save", noteId:string) => void,
+    togglePinnedNote:(pinData:PinData) => void
 }
 
 type ExpandedWindow = {
@@ -36,14 +38,31 @@ type ExpandedWindow = {
     }
 }
 
+type PinData = {
+    noteId:string,
+    title:string,
+    text:string
+}
+
 type BoardNode = Node<NoteData>
 
 let lastClick = 0;
 
-function Board(){
+type BoardProps = {
+    pinnedNotes:PinData[]
+    togglePinnedNote:(pinData:PinData) => void
+}
+
+function Board({pinnedNotes, togglePinnedNote}:BoardProps){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
 
+    useEffect(()=>{
+        setNodes(current => current.map(note => {
+            if (pinnedNotes.some(pinnedNote => pinnedNote.noteId == note.id)) {return {...note, data:{...note.data, pinned:true}}}
+            else {return {...note, data:{...note.data, pinned:false}}}
+        }))
+    },[pinnedNotes])
 
     function updateNodeData(id: string, newData:any, context:string){
         if (context=="save"){
@@ -117,10 +136,12 @@ function Board(){
                 height:150,
                 expandedWidth:400,
                 expandedHeight:400,
+                pinned:false,
                 onExpand,
                 updateNoteSize,
                 removeNode,
-                requestPopup
+                requestPopup,
+                togglePinnedNote
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])

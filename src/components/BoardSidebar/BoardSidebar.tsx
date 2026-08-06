@@ -1,4 +1,4 @@
-import "./Sidebar.css"
+import "./BoardSidebar.css"
 import {ChevronDown, Settings, Brain, Search} from 'lucide-react';
 
 function Sidebar(){

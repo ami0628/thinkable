@@ -23,6 +23,12 @@
     border-width: 2px;
 }
 
+.note.pinned .icons .icon:hover{
+    cursor:pointer;
+    color:var(--text-secondary);
+    background-color: var(--surface-other);
+}
+
 
 .note h3{
     padding: 0;
