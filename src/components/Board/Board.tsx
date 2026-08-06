@@ -18,11 +18,8 @@ type NoteData = {
     expandedWidth:number,
     expandedHeight:number,
     onExpand: (data:any) => void,
-    updateNoteSize: (id:string, size:{width:number, height:number}) => void
-}
-
-type NoteData2 = {
-    
+    updateNoteSize: (id:string, size:{width:number, height:number}) => void,
+    removeNode: (id:string) => void
 }
 
 type ExpandedWindow = {
@@ -52,15 +49,13 @@ function Board(){
                 title:newData.title,
                 text:newData.text,
                 expandedWidth:newData.expandedWidth,
-                expandedHeight:newData.expandedHeight,
-                onExpand
+                expandedHeight:newData.expandedHeight
             }
         }
         else{
             newData = {
                 expandedWidth:newData.expandedWidth,
-                expandedHeight:newData.expandedHeight,
-                onExpand
+                expandedHeight:newData.expandedHeight
             }
         }
         setNodes(
@@ -121,7 +116,8 @@ function Board(){
                 expandedWidth:400,
                 expandedHeight:400,
                 onExpand,
-                updateNoteSize
+                updateNoteSize,
+                removeNode
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])

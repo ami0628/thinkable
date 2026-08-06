@@ -1,17 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import "./Note.css"
-import { Pin, PinOff, Ellipsis, SquarePen} from "lucide-react"
+import { Pin, PinOff, Ellipsis, SquarePen, Trash2, ClipboardType} from "lucide-react"
 import { useReactFlow } from "@xyflow/react";
 
 function Note(props:any){
     const [titleMode,setTitleMode] = useState(false)
-    const [pinned,setPinned] = useState(false)
-    const data = props.data
+    function toggleTitleMode() {if(menuOpen == true){toggleMenuOpen()}; setTitleMode(!titleMode);}
 
-    function toggleTitleMode() {
-        setTitleMode(!titleMode)
-    }
+    const [pinned,setPinned] = useState(false)
     function togglePinned() {setPinned(!pinned);}
+
+    const data = props.data
 
     const resizing = useRef(false);
     const start = useRef({x:0, y:0, width:data.width, height:data.height});
@@ -67,6 +66,7 @@ function Note(props:any){
     const iconsRef = useRef<HTMLDivElement>(null);
     const [minWidth,setMinWidth] = useState(data.width);
     
+    // set min width of note, no title clipping / pushing icons out
     useEffect(() => {
         if (titleMode) {return}
         if(!titleRef.current || !iconsRef.current) return;
@@ -83,6 +83,14 @@ function Note(props:any){
 
     }, [titleMode]);
 
+    const [menuOpen, setMenuOpen] = useState(false);
+    function toggleMenuOpen(){setMenuOpen(!menuOpen)}
+
+    console.log(data);
+    console.log(data.removeNode);
+    console.log(typeof data.removeNode);
+
+
     if (titleMode){
         return(
             <div className={`titleModeNote ${pinned ? "pinned" : ""}`} onDoubleClick={toggleTitleMode}>
@@ -92,23 +100,29 @@ function Note(props:any){
     }
     else{
     return(
-        <div className={`note nowheel ${pinned ? "pinned" : ""}`} onDoubleClick={() => data.onExpand(props)} style={{width:data.width, height:data.height, minWidth:minWidth}}>
+        <div className={`note nowheel ${pinned ? "pinned" : ""}`} style={{width:data.width, height:data.height, minWidth:minWidth}}>
             <div className="helpResize">
                 {/* if data exists, use that, otherwise default */}
                 <div className="noteHeader">
-                    <h3 ref={titleRef}> {data.title ? data.title : "New Note"} </h3>
+                    <h3 ref={titleRef} onDoubleClick={() => data.onExpand(props)}> {data.title ? data.title : "New Note"} </h3>
                     <div className="icons nodrag nopan" ref={iconsRef}> 
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />{!pinned? 
                         <Pin onClick={(event) => {event.stopPropagation(); togglePinned()}} className="icon"/> : 
                         <PinOff onClick={togglePinned} className="icon"/>} 
-                        <Ellipsis className="icon" onClick={toggleTitleMode}/> 
+                        <Ellipsis className="icon" onClick={toggleMenuOpen}/> 
                     </div>
                 </div> 
             </div>
-            <div className="textContainer">
+            <div className="textContainer" onDoubleClick={() => data.onExpand(props)}>
                 <div className="textDisplay">{data.text ? data.text : "Text will display here"}</div>
-            </div>          
+            </div>     
             <div className="resize-handle nodrag nopan" onMouseDown={startResize}> </div>
+            {menuOpen &&
+                (<div className="dropdown nodrag nopan">
+                    <button onClick={toggleTitleMode}> <ClipboardType className="icon"/> Title mode </button>
+                    <button onClick={() => data.removeNode(props.id)}> <Trash2 className="icon"/> Delete note </button>
+                </div>)
+            }
         </div>
     )}
 }

@@ -41,6 +41,11 @@
   --shadow-sm: 0 1px 3px rgba(13, 4, 23, 0.08);
   --shadow-md: 0 8px 24px rgba(13, 4, 23, 0.12);
 
+  /* Dropdown */
+
+  --dropdown-bg: #4e4558;
+  --dropdown-hover: #5f5669;
+
   /* Animation */
   --transition-fast: 150ms ease-in-out;
   --transition-normal: 250ms ease;

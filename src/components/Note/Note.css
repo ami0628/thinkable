@@ -42,7 +42,7 @@
 }
 
 
-.note .icon{
+.note .icons .icon{
     width:1.5em;
     height:1.5em;
     color:var(--text-muted);
@@ -51,7 +51,7 @@
     padding:4px;
     margin-bottom:2px;
 }
-.icon:hover{
+.icons .icon:hover{
     cursor:pointer;
     color:var(--text-secondary);
     background-color: var(--surface-hover);
@@ -116,4 +116,44 @@
 .titleModeNote.pinned{
     border: solid 2px var(--primary);
     background-color: var(--surface-hover);
+}
+
+.note .dropdown{
+    position:absolute;
+    display: flex;
+    flex-direction: column;
+    gap:2px;
+    background-color: var(--dropdown-bg);
+    top:12px;
+    right:-97px;
+    border-radius: 4px;
+    font-size: 0.9em;
+
+    padding:2px;
+}
+
+.note .dropdown button{
+    background: transparent;
+    border: none;
+    color: var(--surface);
+
+    border-radius:2px;
+
+    display: flex;
+    align-items: center;
+    gap:6px;
+
+    padding:6px;
+
+    font-size: 0.8em;
+
+}
+.note .dropdown button:hover{
+    cursor: pointer;
+    background-color: var(--dropdown-hover);
+}
+
+.note .dropdown button .icon{
+    width: 1.2em;
+    height:1.2em;
 }
