@@ -16,6 +16,7 @@ function ExpandedNote (props:any){
     const [originalText, setOriginalText] = useState(text);
 
     function changesMade(){
+        if (originalTitle == "New note" && originalText == "Text will display here.") {return false;}
         if (title !== originalTitle) {return true;}
         if (text !== originalText) {return true;}
         return false;
