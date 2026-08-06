@@ -6,7 +6,7 @@
     justify-content: center;
     align-items: center;
 
-    background:rgba(0, 0, 0, 0.5);
+    background:rgba(0, 0, 0, 0.2);
     inset:0;
     position:fixed;
     z-index:999999;
@@ -50,28 +50,41 @@
 
 .popup .buttons-container button{
     width: 90px;
+
     color:white;
     font-size: 0.7em;
+    font-weight: 400;
+
     padding: 4px;
 
-    border: solid 1px var(--text-primary);
+    border: 1px solid rgba(255,255,255,0.25);
     border-radius: var(--radius-sm);
     cursor:pointer;
+
+
+    transition: 
+        transform 0.15s ease,
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
+
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25);
 }
 
-.popup .buttons-container button.close{
-    background-color: rgb(211, 3, 3);
+.popup .buttons-container button:hover{
+    filter: brightness(1.05);
+    transform: translateY(-0.5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.popup .buttons-container button.close, .popup .buttons-container button.delete{
+    background-color: #d93636;
 }
 
 .popup .buttons-container button.save{
-    background-color: rgb(3, 110, 211);
-}
-
-.popup .buttons-container button.delete{
-    background-color: rgb(211, 3, 3);
+    background-color: #3478d4;
 }
 
 .popup .buttons-container button.cancel{
-    background-color: gray;
+    background-color: #777;
 }
 
