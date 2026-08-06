@@ -5,7 +5,7 @@ import { useReactFlow } from "@xyflow/react";
 
 function Note(props:any){
     const [titleMode,setTitleMode] = useState(false)
-    function toggleTitleMode() {if(menuOpen == true){toggleMenuOpen()}; setTitleMode(!titleMode);}
+    function toggleTitleMode() {setTitleMode(!titleMode);}
 
     const [pinned,setPinned] = useState(false)
     function togglePinned() {setPinned(!pinned);}
@@ -86,6 +86,11 @@ function Note(props:any){
     const [menuOpen, setMenuOpen] = useState(false);
     function toggleMenuOpen(){setMenuOpen(!menuOpen)}
 
+    useEffect(() => {
+        if(menuOpen){window.addEventListener("click",toggleMenuOpen)}
+        return () => window.removeEventListener("click", toggleMenuOpen)
+    }, [menuOpen])
+
 
     if (titleMode){
         return(
@@ -105,7 +110,7 @@ function Note(props:any){
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />{!pinned? 
                         <Pin onClick={(event) => {event.stopPropagation(); togglePinned()}} className="icon"/> : 
                         <PinOff onClick={togglePinned} className="icon"/>} 
-                        <Ellipsis className="icon" onClick={toggleMenuOpen}/> 
+                        <Ellipsis className="icon" onClick={(event)=> {event.stopPropagation(); toggleMenuOpen()}}/> 
                     </div>
                 </div> 
             </div>
@@ -114,7 +119,7 @@ function Note(props:any){
             </div>     
             <div className="resize-handle nodrag nopan" onMouseDown={startResize}> </div>
             {menuOpen &&
-                (<div className="dropdown nodrag nopan">
+                (<div className="dropdown nodrag nopan" onClick={(event) => event.stopPropagation()}>
                     <button onClick={toggleTitleMode}> <ClipboardType className="icon"/> Title mode </button>
                     <button onClick={() => props.data.requestPopup("delete", props.id)}> <Trash2 className="icon"/> Delete note </button>
                 </div>)
