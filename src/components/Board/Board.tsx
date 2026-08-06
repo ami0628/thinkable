@@ -158,7 +158,6 @@ function Board(){
     }
 
     function onExit(noteId:string, data:any, context:string){
-        console.log(noteId, data, context)
         updateNodeData(noteId, data, context);
         // list of EN becomes the result of: [allow all notes where noteId is not the one being deleted]
         setExpandedNotes( current => current.filter(note => note.noteId !== noteId))
@@ -208,7 +207,6 @@ function Board(){
     const [popup, setPopup] = useState<Popup | null>(null);
 
     function requestPopup(action: "close" | "delete" | "save", noteId:string, data?:any){
-        console.log("POPUP REQUESTED", action, noteId, data);
         setPopup({action, noteId, data})
     }
 
