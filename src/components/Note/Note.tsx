@@ -91,6 +91,12 @@ function Note(props:any){
         return () => window.removeEventListener("click", toggleMenuOpen)
     }, [menuOpen])
 
+    function handleDelete(){
+        if (data.title=="" && data.text==""){data.removeNode(props.id)}
+        else {data.requestPopup("delete", props.id)}
+        return
+    }
+
 
     if (titleMode){
         return(
@@ -105,7 +111,7 @@ function Note(props:any){
             <div className="helpResize">
                 {/* if data exists, use that, otherwise default */}
                 <div className="noteHeader">
-                    <h3 ref={titleRef} onDoubleClick={() => data.onExpand(props)}> {data.title ? data.title : "New Note"} </h3>
+                    <h3 ref={titleRef} onDoubleClick={() => data.onExpand(props)}> {data.title} </h3>
                     <div className="icons nodrag nopan" ref={iconsRef}> 
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />{!pinned? 
                         <Pin onClick={(event) => {event.stopPropagation(); togglePinned()}} className="icon"/> : 
@@ -115,13 +121,13 @@ function Note(props:any){
                 </div> 
             </div>
             <div className="textContainer" onDoubleClick={() => data.onExpand(props)}>
-                <div className="textDisplay">{data.text ? data.text : "Text will display here"}</div>
+                <div className="textDisplay">{data.text}</div>
             </div>     
             <div className="resize-handle nodrag nopan" onMouseDown={startResize}> </div>
             {menuOpen &&
                 (<div className="dropdown nodrag nopan" onClick={(event) => event.stopPropagation()}>
                     <button onClick={toggleTitleMode}> <ClipboardType className="icon"/> Title mode </button>
-                    <button onClick={() => props.data.requestPopup("delete", props.id)}> <Trash2 className="icon"/> Delete note </button>
+                    <button onClick={() => handleDelete()}> <Trash2 className="icon"/> Delete note </button>
                 </div>)
             }
         </div>

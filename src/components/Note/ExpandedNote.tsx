@@ -9,6 +9,18 @@ function ExpandedNote (props:any){
     const [grabbing, setGrabbing] = useState(false);
     const titleRef = useRef<HTMLInputElement>(null);
 
+    const [title,setTitle] = useState(data.title);
+    const [text, setText] = useState(data.text);
+
+    const [originalTitle, setOriginalTitle] = useState(title);
+    const [originalText, setOriginalText] = useState(text);
+
+    function changesMade(){
+        if (title !== originalTitle) {return true;}
+        if (text !== originalText) {return true;}
+        return false;
+    }
+
     function startDrag(event:React.MouseEvent){
         dragging.current = (true);
         setGrabbing(true)
@@ -40,9 +52,6 @@ function ExpandedNote (props:any){
         window.removeEventListener("mousemove", drag)
         window.removeEventListener("mouseup", stopDrag)
     }
-
-    const [title,setTitle] = useState(data.title ? data.title : "New Note");
-    const [text, setText] = useState(data.text ? data.text : "Text will display here");
 
     const noteRef = useRef<HTMLDivElement>(null);
     // save size between closing
@@ -78,7 +87,13 @@ function ExpandedNote (props:any){
         resizeTitle();
     }, [title])
 
-    function handleExit(context:string) {console.log(context); props.requestPopup(context,data.noteId,{title:title, text:text, expandedWidth:data.width, expandedHeight:data.height})}
+    function handleExit(context:string) {
+        const outputTitle = (title =="")? "New note" : title;
+        const outPutText = (text =="")? "Text will display here." : text;
+
+        if (changesMade()){props.requestPopup(context, data.noteId, {title:outputTitle, text:outPutText, expandedWidth:data.width, expandedHeight:data.height})}
+        else{props.onExit(data.noteId,{title:outputTitle, text:outPutText, expandedWidth:data.width, expandedHeight:data.height},context)}
+    }
     
     return(
         <div className="expandedNote nowheel" style={{left:data.position.x, top:data.position.y, width:data.width, height:data.height}} ref={noteRef}>

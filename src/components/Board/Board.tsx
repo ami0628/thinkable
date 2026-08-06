@@ -111,8 +111,8 @@ function Board(){
                 y:position.y
             },
             data:{
-                title:"",
-                text:"",
+                title:"New note",
+                text:"Text will display here.",
                 width:200,
                 height:150,
                 expandedWidth:400,
@@ -158,6 +158,7 @@ function Board(){
     }
 
     function onExit(noteId:string, data:any, context:string){
+        console.log(noteId, data, context)
         updateNodeData(noteId, data, context);
         // list of EN becomes the result of: [allow all notes where noteId is not the one being deleted]
         setExpandedNotes( current => current.filter(note => note.noteId !== noteId))
