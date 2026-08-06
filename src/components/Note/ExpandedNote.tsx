@@ -78,7 +78,7 @@ function ExpandedNote (props:any){
         resizeTitle();
     }, [title])
 
-    function handleExit(context:string) {props.onExit(data.noteId,{title:title, text:text, expandedWidth:data.width, expandedHeight:data.height},context)}
+    function handleExit(context:string) {console.log(context); props.requestPopup(context,data.noteId,{title:title, text:text, expandedWidth:data.width, expandedHeight:data.height})}
     
     return(
         <div className="expandedNote nowheel" style={{left:data.position.x, top:data.position.y, width:data.width, height:data.height}} ref={noteRef}>

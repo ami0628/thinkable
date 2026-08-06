@@ -4,6 +4,7 @@ import type {Node} from "@xyflow/react"
 import "@xyflow/react/dist/style.css";
 import Note from "../Note/Note";
 import ExpandedNote from "../Note/ExpandedNote"
+import Popup from "../Popup/Popup";
 import { useState } from "react"
 
 const nodeTypes = {
@@ -19,7 +20,8 @@ type NoteData = {
     expandedHeight:number,
     onExpand: (data:any) => void,
     updateNoteSize: (id:string, size:{width:number, height:number}) => void,
-    removeNode: (id:string) => void
+    removeNode: (id:string) => void,
+    requestPopup:(action:"close"|"delete"|"save", noteId:string) => void
 }
 
 type ExpandedWindow = {
@@ -52,7 +54,7 @@ function Board(){
                 expandedHeight:newData.expandedHeight
             }
         }
-        else{
+        else{ // close
             newData = {
                 expandedWidth:newData.expandedWidth,
                 expandedHeight:newData.expandedHeight
@@ -117,7 +119,8 @@ function Board(){
                 expandedHeight:400,
                 onExpand,
                 updateNoteSize,
-                removeNode
+                removeNode,
+                requestPopup
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])
@@ -199,7 +202,14 @@ function Board(){
         )
     }
 
+    // enforce strict typing (not really important here)
+    type Popup = {action: "close" | "delete" | "save", noteId:string, data?:any};
+    const [popup, setPopup] = useState<Popup | null>(null);
 
+    function requestPopup(action: "close" | "delete" | "save", noteId:string, data?:any){
+        console.log("POPUP REQUESTED", action, noteId, data);
+        setPopup({action, noteId, data})
+    }
 
     return(
         <main className="board-container">
@@ -208,6 +218,18 @@ function Board(){
                 <Background/>
                 <Controls />
             </ReactFlow>
+            {popup &&
+                <Popup
+                    action = {popup.action}
+                    cancel = { () => {setPopup(null);} }
+                    confirm = {() => {
+                        if (popup.action === "delete"){removeNode(popup.noteId)}
+                        if (popup.action === "close") {onExit(popup.noteId, {...popup.data}, "close")}
+                        if (popup.action === "save") {onExit(popup.noteId, {...popup.data}, "save")}
+                        setPopup(null);
+                    }}
+                />
+            }
             {expandedNotes.map(note =>
                 <ExpandedNote
                     key={note.noteId}
@@ -215,6 +237,7 @@ function Board(){
                     onExit={onExit}
                     updatePosition={updateExpandedNotePosition}
                     updateSize={updateExpandedNoteSize}
+                    requestPopup={requestPopup}
                 />
             )}
         </main>

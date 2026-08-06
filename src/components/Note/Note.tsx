@@ -86,10 +86,6 @@ function Note(props:any){
     const [menuOpen, setMenuOpen] = useState(false);
     function toggleMenuOpen(){setMenuOpen(!menuOpen)}
 
-    console.log(data);
-    console.log(data.removeNode);
-    console.log(typeof data.removeNode);
-
 
     if (titleMode){
         return(
@@ -120,7 +116,7 @@ function Note(props:any){
             {menuOpen &&
                 (<div className="dropdown nodrag nopan">
                     <button onClick={toggleTitleMode}> <ClipboardType className="icon"/> Title mode </button>
-                    <button onClick={() => data.removeNode(props.id)}> <Trash2 className="icon"/> Delete note </button>
+                    <button onClick={() => props.data.requestPopup("delete", props.id)}> <Trash2 className="icon"/> Delete note </button>
                 </div>)
             }
         </div>
