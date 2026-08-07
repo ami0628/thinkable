@@ -1,9 +1,13 @@
 aside{
     width: 10vw;
+    height: calc(100vh - var(--header-height));
+
     background-color: var(--surface);
     border-right:solid 2px var(--border);
 
-    height: calc(100vh - var(--header-height));
+    display: flex;
+    flex-direction: column;
+
     padding-left:0.25%;
     padding-right:0.25%;
     padding-top: 1%;
@@ -53,4 +57,9 @@ li:hover{
     background-color: var(--surface-other);
     box-shadow: var(--shadow-md);
     cursor: pointer;
+}
+
+.sidebar-lists-container{
+    overflow-y: scroll;
+    flex:1;
 }

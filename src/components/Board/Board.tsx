@@ -6,6 +6,7 @@ import Note from "../Note/Note";
 import ExpandedNote from "../Note/ExpandedNote"
 import Popup from "../Popup/Popup";
 import { useEffect, useState } from "react"
+import { ReceiptText } from "lucide-react";
 
 const nodeTypes = {
     note: Note,
@@ -23,9 +24,12 @@ type NoteData = {
     updateNoteSize: (id:string, size:{width:number, height:number}) => void,
     removeNode: (id:string) => void,
     requestPopup:(action:"close"|"delete"|"save", noteId:string) => void,
-    pinFunctions:{
-        addPinnedNote:(pinData:SidebarData) => void,
-        removePinnedNote:(noteId:string) => void
+    sidebarFunctions:{
+        addPinnedNote: (pinData:SidebarData) => void
+        removePinnedNote: (noteId:string) => void
+        updatePinnedNote: (pinData:SidebarData) => void
+        updateRecentNotes: (recentData:SidebarData) => void
+        removeRecentNote: (noteId:string) => void
     }
 }
 
@@ -56,16 +60,21 @@ let lastClick = 0;
 
 type BoardProps = {
     pinnedNotes:SidebarData[]
-    pinFunctions:{
+    recentNotes:SidebarData[]
+    sidebarFunctions:{
         addPinnedNote: (pinData:SidebarData) => void
         removePinnedNote: (noteId:string) => void
         updatePinnedNote: (pinData:SidebarData) => void
+        updateRecentNotes: (recentData:SidebarData) => void
+        removeRecentNote: (noteId:string) => void
     }
 }
 
-function Board({ pinnedNotes, pinFunctions }:BoardProps){
+function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
+
+    useEffect(() => {console.log(recentNotes)},[recentNotes])
 
     // if pinned notes changes, make sure all notes are correctly pinned/unpinned
     useEffect(()=>{
@@ -81,25 +90,25 @@ function Board({ pinnedNotes, pinFunctions }:BoardProps){
         })
     },[pinnedNotes])
 
-    useEffect(() => {
-        // make sure notes are unpinned when deleted
-        pinnedNotes.forEach(pinnedNote =>{
-            // if pinned note x is NOT in the node list, remove it
-            if (!nodes.some(note => note.id == pinnedNote.noteId)) {pinFunctions.removePinnedNote(pinnedNote.noteId)}
-        })
-              
+    useEffect(() => {  
         // update pinnedNote data when any note data changes
         pinnedNotes.forEach(pinnedNote => {
             // for every pinnedNote
             nodes.map(note => {
                 // update with newest data of corresponding note
-                if (pinnedNote.noteId == note.id && pinnedDataChanged(pinnedNote, note)) {pinFunctions.updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title, position:note.position})}
+                if (pinnedNote.noteId == note.id && sidebarDataChanged(pinnedNote, note)) {sidebarFunctions.updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title, position:note.position})}
+            })
+        })
+
+        recentNotes.forEach(recentNote =>{
+            nodes.map(note => {
+                if (recentNote.noteId == note.id && sidebarDataChanged(recentNote, note)) {sidebarFunctions.updateRecentNotes({noteId:recentNote.noteId, title:note.data.title, position:note.position})}
             })
         })
 
     },[nodes])
 
-    function pinnedDataChanged(pinnedNote:SidebarData, note: BoardNode){
+    function sidebarDataChanged(pinnedNote:SidebarData, note: BoardNode){
         return (
             pinnedNote.title !== note.data.title || (
                 pinnedNote.position &&(
@@ -139,7 +148,11 @@ function Board({ pinnedNotes, pinFunctions }:BoardProps){
         );
     }
 
-    function removeNode(id:string) {setNodes(currentNodes => currentNodes.filter(node => node.id !== id))}
+    function removeNode(id:string) {
+        setNodes(currentNodes => currentNodes.filter(node => node.id !== id))
+        sidebarFunctions.removePinnedNote(id);
+        sidebarFunctions.removeRecentNote(id);
+    }
 
     function handleNodeChanges(changes:any) {
         setNodes((nodes) => applyNodeChanges(changes, nodes))
@@ -186,7 +199,7 @@ function Board({ pinnedNotes, pinFunctions }:BoardProps){
                 updateNoteSize,
                 removeNode,
                 requestPopup,
-                pinFunctions
+                sidebarFunctions
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])
@@ -213,6 +226,7 @@ function Board({ pinnedNotes, pinFunctions }:BoardProps){
             return([...current, newExpandedNote])
         }
         );
+        sidebarFunctions.updateRecentNotes({noteId:noteProps.id, title:noteData.title, position:{x:0,y:0}})
     }
 
     function getCenterOfView(){

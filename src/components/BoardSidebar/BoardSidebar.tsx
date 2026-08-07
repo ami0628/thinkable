@@ -12,15 +12,18 @@ type SidebarData = {
 }
 
 type BoardSidebarProps = {
-    pinnedNotes:SidebarData[];
-    pinFunctions:{
-        addPinnedNote: (SidebarData:SidebarData) => void
+    pinnedNotes:SidebarData[]
+    recentNotes:SidebarData[]
+    sidebarFunctions:{
+        addPinnedNote: (pinData:SidebarData) => void
         removePinnedNote: (noteId:string) => void
-        updatePinnedNote: (SidebarData:SidebarData) => void
-    };
+        updatePinnedNote: (pinData:SidebarData) => void
+        updateRecentNotes: (recentData:SidebarData) => void
+        removeRecentNote: (noteId:string) => void
+    }
 }
 
-function BoardSidebar({ pinnedNotes, pinFunctions }:BoardSidebarProps){
+function BoardSidebar({ pinnedNotes, recentNotes, sidebarFunctions }:BoardSidebarProps){
     const [showPinnedList, setShowPinnedList] = useState(true);
     function toggleShowPinnedList(){ setShowPinnedList(!showPinnedList);}
 
@@ -34,6 +37,7 @@ function BoardSidebar({ pinnedNotes, pinFunctions }:BoardSidebarProps){
             <div className="sidebar-heading clickable"><Settings/> Settings  </div>
             
             <br/>
+            <div className="sidebar-lists-container">
             <div className="sidebar-heading clickable no-select" onClick={toggleShowPinnedList}> Pinned notes {showPinnedList? <ChevronDown /> : <ChevronRight />}</div>
             <ul>
                 {pinnedNotes && showPinnedList &&
@@ -49,13 +53,17 @@ function BoardSidebar({ pinnedNotes, pinFunctions }:BoardSidebarProps){
             <div className="sidebar-heading clickable no-select" onClick={toggleShowRecents}> Recent notes {showRecents? <ChevronDown /> : <ChevronRight />}</div>
             {showRecents &&
             <ul>
-                <li>
-                    example note 3
-                </li>
-                <li>
-                    example note 4
-                </li>
+                {recentNotes && showRecents &&
+                    recentNotes.map(recentNote => (
+                        <li className="no-select"
+                            key={recentNote.noteId}
+                        >
+                            {recentNote.title}
+                        </li>
+                    ))
+                }
             </ul>}
+            </div>
         </aside>
     );
 }

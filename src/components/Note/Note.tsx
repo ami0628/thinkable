@@ -104,7 +104,7 @@ function Note(props:any){
     }
     else{
     return(
-        <div className={`note nowheel ${data.pinned ? "pinned" : ""}`} style={{width:data.width, height:data.height, minWidth:minWidth}}>
+        <div className={`note ${data.pinned ? "pinned" : ""}`} style={{width:data.width, height:data.height, minWidth:minWidth}}>
             <div className="helpResize">
                 {/* if data exists, use that, otherwise default */}
                 <div className="noteHeader">
@@ -112,9 +112,9 @@ function Note(props:any){
                     <div className="icons nodrag nopan" ref={iconsRef}> 
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />
                         {!data.pinned? 
-                            <Pin onClick={(event) => {event.stopPropagation(); data.pinFunctions.addPinnedNote({noteId:props.id, title:data.title, position:data.position})}} className="icon"/> 
+                            <Pin onClick={(event) => {event.stopPropagation(); data.sidebarFunctions.addPinnedNote({noteId:props.id, title:data.title, position:data.position})}} className="icon"/> 
                             : 
-                            <PinOff onClick={(event) => {event.stopPropagation(); data.pinFunctions.removePinnedNote(props.id);}} className="icon"/>} 
+                            <PinOff onClick={(event) => {event.stopPropagation(); data.sidebarFunctions.removePinnedNote(props.id);}} className="icon"/>} 
                         <Ellipsis className="icon" onClick={(event)=> {event.stopPropagation(); toggleMenuOpen()}}/> 
                     </div>
                 </div> 

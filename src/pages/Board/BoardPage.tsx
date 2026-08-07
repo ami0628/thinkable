@@ -6,7 +6,7 @@ import { useState } from "react";
 import"./BoardPage.css";
 
 
-type PinData = {
+type SidebarData = {
     noteId:string,
     title:string,
     position:{
@@ -16,14 +16,24 @@ type PinData = {
 }
 
 function BoardPage (){
-    const [pinnedNotes, setPinnedNotes] =useState<PinData[]>([])
-    function addPinnedNote(pinData:PinData){setPinnedNotes(current => [...current, pinData])}
+    const [pinnedNotes, setPinnedNotes] =useState<SidebarData[]>([])
+    function addPinnedNote(pinData:SidebarData){setPinnedNotes(current => [...current, pinData])}
     function removePinnedNote(noteId:string){setPinnedNotes(current => current.filter(pinnedNote => pinnedNote.noteId !== noteId))}
-    function updatePinnedNote(pinData:PinData){
+    function updatePinnedNote(pinData:SidebarData){
         setPinnedNotes(current => current.map(pinnedNote => {
                 if (pinData.noteId == pinnedNote.noteId) {return pinData}
                 else {return pinnedNote}
     }))}
+
+
+    const [recentNotes, setRecentNotes] = useState<SidebarData[]>([])
+    function updateRecentNotes(mostRecentData:SidebarData) {
+        // notes => new note at head - previous notes filtered to see if new note was already there (if so, removed) - and only return the first 10
+        setRecentNotes(current => [mostRecentData, ...current.filter(recentNote => recentNote.noteId !== mostRecentData.noteId)].slice(0,10))
+    }
+    function removeRecentNote(noteId:string){setRecentNotes(current => current.filter(recentNote => recentNote.noteId !== noteId))}
+
+
 
     return(
         <div>
@@ -31,18 +41,24 @@ function BoardPage (){
             <div className="board-layout">
                 <Sidebar
                     pinnedNotes={pinnedNotes}
-                    pinFunctions={{
+                    recentNotes={recentNotes}
+                    sidebarFunctions={{
                         addPinnedNote:addPinnedNote,
                         removePinnedNote:removePinnedNote,
-                        updatePinnedNote:updatePinnedNote
+                        updatePinnedNote:updatePinnedNote,
+                        updateRecentNotes:updateRecentNotes,
+                        removeRecentNote:removeRecentNote
                     }}
                 />
                 <Board
                     pinnedNotes={pinnedNotes}
-                    pinFunctions={{
+                    recentNotes={recentNotes}
+                    sidebarFunctions={{
                         addPinnedNote:addPinnedNote,
                         removePinnedNote:removePinnedNote,
-                        updatePinnedNote:updatePinnedNote
+                        updatePinnedNote:updatePinnedNote,
+                        updateRecentNotes:updateRecentNotes,
+                        removeRecentNote:removeRecentNote
                     }}
                 />
             </div>
