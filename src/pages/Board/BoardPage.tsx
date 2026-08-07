@@ -9,31 +9,41 @@ import"./BoardPage.css";
 type PinData = {
     noteId:string,
     title:string,
-    text:string
+    position:{
+        x:number,
+        y:number
+    }
 }
 
 function BoardPage (){
     const [pinnedNotes, setPinnedNotes] =useState<PinData[]>([])
-
-    function togglePinnedNote(pinData:PinData){
-        setPinnedNotes(current => {
-            const isPinned = current.some(note => note.noteId == pinData.noteId);
-            // if note is already pinned, remove it
-            if (isPinned) {return current.filter(note => note.noteId !== pinData.noteId);}
-            // otherwise, add it
-            else {return [...current, pinData];}}
-        )
-    }
-    
+    function addPinnedNote(pinData:PinData){setPinnedNotes(current => [...current, pinData])}
+    function removePinnedNote(noteId:string){setPinnedNotes(current => current.filter(pinnedNote => pinnedNote.noteId !== noteId))}
+    function updatePinnedNote(pinData:PinData){
+        setPinnedNotes(current => current.map(pinnedNote => {
+                if (pinData.noteId == pinnedNote.noteId) {return pinData}
+                else {return pinnedNote}
+    }))}
 
     return(
         <div>
             <Header/>
             <div className="board-layout">
-                <Sidebar/>
+                <Sidebar
+                    pinnedNotes={pinnedNotes}
+                    pinFunctions={{
+                        addPinnedNote:addPinnedNote,
+                        removePinnedNote:removePinnedNote,
+                        updatePinnedNote:updatePinnedNote
+                    }}
+                />
                 <Board
                     pinnedNotes={pinnedNotes}
-                    togglePinnedNote={togglePinnedNote}
+                    pinFunctions={{
+                        addPinnedNote:addPinnedNote,
+                        removePinnedNote:removePinnedNote,
+                        updatePinnedNote:updatePinnedNote
+                    }}
                 />
             </div>
         </div>

@@ -89,8 +89,8 @@ function Note(props:any){
     }, [menuOpen])
 
     function handleDelete(){
-        if (data.title=="New note" && data.text=="Text will display here."){data.removeNode(props.id)}
-        else {data.requestPopup("delete", props.id)}
+        if (data.title=="New note" && data.text=="Text will display here."){data.removeNode(props.id);}
+        else {data.requestPopup("delete", props.id);}
         return
     }
 
@@ -112,9 +112,9 @@ function Note(props:any){
                     <div className="icons nodrag nopan" ref={iconsRef}> 
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />
                         {!data.pinned? 
-                            <Pin onClick={(event) => {event.stopPropagation(); data.togglePinnedNote({noteId:props.id, title:data.title, text:data.text});}} className="icon"/> 
+                            <Pin onClick={(event) => {event.stopPropagation(); data.pinFunctions.addPinnedNote({noteId:props.id, title:data.title, position:data.position})}} className="icon"/> 
                             : 
-                            <PinOff onClick={(event) => {event.stopPropagation(); data.togglePinnedNote({noteId:props.id, title:data.title, text:data.text});}} className="icon"/>} 
+                            <PinOff onClick={(event) => {event.stopPropagation(); data.pinFunctions.removePinnedNote(props.id);}} className="icon"/>} 
                         <Ellipsis className="icon" onClick={(event)=> {event.stopPropagation(); toggleMenuOpen()}}/> 
                     </div>
                 </div> 

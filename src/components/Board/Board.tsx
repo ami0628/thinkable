@@ -23,7 +23,10 @@ type NoteData = {
     updateNoteSize: (id:string, size:{width:number, height:number}) => void,
     removeNode: (id:string) => void,
     requestPopup:(action:"close"|"delete"|"save", noteId:string) => void,
-    togglePinnedNote:(pinData:PinData) => void
+    pinFunctions:{
+        addPinnedNote:(pinData:PinData) => void,
+        removePinnedNote:(noteId:string) => void
+    }
 }
 
 type ExpandedWindow = {
@@ -41,7 +44,10 @@ type ExpandedWindow = {
 type PinData = {
     noteId:string,
     title:string,
-    text:string
+    position:{
+        x:number,
+        y:number
+    }
 }
 
 type BoardNode = Node<NoteData>
@@ -50,19 +56,60 @@ let lastClick = 0;
 
 type BoardProps = {
     pinnedNotes:PinData[]
-    togglePinnedNote:(pinData:PinData) => void
+    pinFunctions:{
+        addPinnedNote: (pinData:PinData) => void
+        removePinnedNote: (noteId:string) => void
+        updatePinnedNote: (pinData:PinData) => void
+    }
 }
 
-function Board({pinnedNotes, togglePinnedNote}:BoardProps){
+function Board({ pinnedNotes, pinFunctions }:BoardProps){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
 
+    // if pinned notes changes, make sure all notes are correctly pinned/unpinned
     useEffect(()=>{
-        setNodes(current => current.map(note => {
-            if (pinnedNotes.some(pinnedNote => pinnedNote.noteId == note.id)) {return {...note, data:{...note.data, pinned:true}}}
-            else {return {...note, data:{...note.data, pinned:false}}}
-        }))
+        setNodes(current =>{
+            let changed=false; // only change when necessary, avoid feedback loop
+            const newArray = current.map( note =>{
+                const shouldBePinned = pinnedNotes.some(pinnedNote => pinnedNote.noteId == note.id)
+                // should and is, shouldnt and isn't --> no change
+                if (note.data.pinned === shouldBePinned) {return note}
+                else {changed=true; return {...note, data:{...note.data, pinned:shouldBePinned}}}
+            })
+            return changed ? newArray : current
+        })
     },[pinnedNotes])
+
+    useEffect(() => {
+        // make sure notes are unpinned when deleted
+        pinnedNotes.forEach(pinnedNote =>{
+            // if pinned note x is NOT in the node list, remove it
+            if (!nodes.some(note => note.id == pinnedNote.noteId)) {pinFunctions.removePinnedNote(pinnedNote.noteId)}
+        })
+              
+        // update pinnedNote data when any note data changes
+        pinnedNotes.forEach(pinnedNote => {
+            // for every pinnedNote
+            nodes.map(note => {
+                // update with newest data of corresponding note
+                if (pinnedNote.noteId == note.id && pinnedDataChanged(pinnedNote, note)) {pinFunctions.updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title, position:note.position})}
+            })
+        })
+
+    },[nodes])
+
+    function pinnedDataChanged(pinnedNote:PinData, note: BoardNode){
+        console.log(pinnedNote)
+        console.log(note)
+        return (
+            pinnedNote.title !== note.data.title || (
+                pinnedNote.position &&(
+                    pinnedNote.position.x !== note.position.x ||
+                    pinnedNote.position.y !== note.position.y)
+            )
+        )
+    }
 
     function updateNodeData(id: string, newData:any, context:string){
         if (context=="save"){
@@ -141,7 +188,7 @@ function Board({pinnedNotes, togglePinnedNote}:BoardProps){
                 updateNoteSize,
                 removeNode,
                 requestPopup,
-                togglePinnedNote
+                pinFunctions
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])
