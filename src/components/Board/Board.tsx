@@ -5,7 +5,7 @@ import "@xyflow/react/dist/style.css";
 import Note from "../Note/Note";
 import ExpandedNote from "../Note/ExpandedNote"
 import Popup from "../Popup/Popup";
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { ReceiptText } from "lucide-react";
 
 const nodeTypes = {
@@ -56,7 +56,7 @@ type SidebarData = {
 
 type BoardNode = Node<NoteData>
 
-let lastClick = 0;
+const lastClick = useRef(0);
 
 type BoardProps = {
     pinnedNotes:SidebarData[]
@@ -162,8 +162,8 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
     const screenToFlowPosition = useReactFlow().screenToFlowPosition;
 
     function handleClick(data: { clientX: any; clientY: any; }){
-        if (Date.now() - lastClick <= 250){ handleDoubleClick(data); }
-        lastClick = Date.now();
+        if (Date.now() - lastClick.current <= 250){ handleDoubleClick(data); }
+        lastClick.current = Date.now();
         return
     }
 
@@ -226,7 +226,7 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
             return([...current, newExpandedNote])
         }
         );
-        sidebarFunctions.updateRecentNotes({noteId:noteProps.id, title:noteData.title, position:{x:0,y:0}})
+        sidebarFunctions.updateRecentNotes({noteId:noteProps.id, title:noteData.title, position:noteProps.position})
     }
 
     function getCenterOfView(){
