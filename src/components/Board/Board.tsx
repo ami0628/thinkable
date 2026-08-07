@@ -24,7 +24,7 @@ type NoteData = {
     removeNode: (id:string) => void,
     requestPopup:(action:"close"|"delete"|"save", noteId:string) => void,
     pinFunctions:{
-        addPinnedNote:(pinData:PinData) => void,
+        addPinnedNote:(pinData:SidebarData) => void,
         removePinnedNote:(noteId:string) => void
     }
 }
@@ -41,7 +41,7 @@ type ExpandedWindow = {
     }
 }
 
-type PinData = {
+type SidebarData = {
     noteId:string,
     title:string,
     position:{
@@ -55,11 +55,11 @@ type BoardNode = Node<NoteData>
 let lastClick = 0;
 
 type BoardProps = {
-    pinnedNotes:PinData[]
+    pinnedNotes:SidebarData[]
     pinFunctions:{
-        addPinnedNote: (pinData:PinData) => void
+        addPinnedNote: (pinData:SidebarData) => void
         removePinnedNote: (noteId:string) => void
-        updatePinnedNote: (pinData:PinData) => void
+        updatePinnedNote: (pinData:SidebarData) => void
     }
 }
 
@@ -99,9 +99,7 @@ function Board({ pinnedNotes, pinFunctions }:BoardProps){
 
     },[nodes])
 
-    function pinnedDataChanged(pinnedNote:PinData, note: BoardNode){
-        console.log(pinnedNote)
-        console.log(note)
+    function pinnedDataChanged(pinnedNote:SidebarData, note: BoardNode){
         return (
             pinnedNote.title !== note.data.title || (
                 pinnedNote.position &&(
