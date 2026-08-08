@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import "./Note.css"
 import { Pin, PinOff, Ellipsis, SquarePen, Trash2, ClipboardType} from "lucide-react"
 import { useReactFlow } from "@xyflow/react";
+import { useBoard } from "../../context/BoardContext";
 
 function Note(props:any){
     const [titleMode,setTitleMode] = useState(false)
@@ -62,6 +63,8 @@ function Note(props:any){
     const titleRef = useRef<HTMLHeadingElement>(null);
     const iconsRef = useRef<HTMLDivElement>(null);
     const [minWidth,setMinWidth] = useState(data.width);
+
+    const { addPinnedNote, removePinnedNote } = useBoard()
     
     // set min width of note, no title clipping / pushing icons out
     useEffect(() => {
@@ -112,9 +115,9 @@ function Note(props:any){
                     <div className="icons nodrag nopan" ref={iconsRef}> 
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />
                         {!data.pinned? 
-                            <Pin onClick={(event) => {event.stopPropagation(); data.sidebarFunctions.addPinnedNote({noteId:props.id, title:data.title, position:data.position})}} className="icon"/> 
+                            <Pin onClick={(event) => {event.stopPropagation(); addPinnedNote({noteId:props.id, title:data.title})}} className="icon"/> 
                             : 
-                            <PinOff onClick={(event) => {event.stopPropagation(); data.sidebarFunctions.removePinnedNote(props.id);}} className="icon"/>} 
+                            <PinOff onClick={(event) => {event.stopPropagation(); removePinnedNote(props.id);}} className="icon"/>} 
                         <Ellipsis className="icon" onClick={(event)=> {event.stopPropagation(); toggleMenuOpen()}}/> 
                     </div>
                 </div> 

@@ -3,19 +3,11 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 export type SidebarData = {
     noteId:string,
     title:string,
-    position:{
-        x:number,
-        y:number
-    }
 }
 
 export type BoardAction = {
-    type: string, // open, pan
-    noteId: string,
-    position:{
-        x: number,
-        y: number
-    }
+    type: "open" | "pan",
+    noteId: string
 }
 
 type BoardContextValue = {
@@ -26,11 +18,12 @@ type BoardContextValue = {
     removePinnedNote: (noteId:string) => void
     updatePinnedNote: (pinData:SidebarData) => void
 
-    updateRecentNotes: (pinData:SidebarData) => void
+    updateRecentNotes: (mostRecentData:SidebarData) => void
     removeRecentNote: (noteId:string) => void
     
     boardAction: BoardAction | null
     requestBoardAction: (action: BoardAction) => void
+    resetBoardAction: () => void
 }
 
 const BoardContext = createContext<BoardContextValue | null>(null)
@@ -42,6 +35,7 @@ export function BoardProvider({children}: BoardProviderProps) {
 
     const [boardAction,setBoardAction] = useState<BoardAction|null>(null);
             function requestBoardAction(action: BoardAction) {setBoardAction(action)}
+            function resetBoardAction() {setBoardAction(null)}
 
     const [pinnedNotes, setPinnedNotes] =useState<SidebarData[]>([])
             function addPinnedNote(pinData:SidebarData){setPinnedNotes(current => [...current, pinData])}
@@ -75,7 +69,8 @@ export function BoardProvider({children}: BoardProviderProps) {
                 removeRecentNote,
 
                 boardAction,
-                requestBoardAction
+                requestBoardAction,
+                resetBoardAction
             }}
         >
             {children}

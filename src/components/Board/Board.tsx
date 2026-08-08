@@ -6,7 +6,7 @@ import Note from "../Note/Note";
 import ExpandedNote from "../Note/ExpandedNote"
 import Popup from "../Popup/Popup";
 import { useEffect, useState, useRef } from "react"
-import { ReceiptText } from "lucide-react";
+import { useBoard } from "../../context/BoardContext";
 
 const nodeTypes = {
     note: Note,
@@ -24,13 +24,6 @@ type NoteData = {
     updateNoteSize: (id:string, size:{width:number, height:number}) => void,
     removeNode: (id:string) => void,
     requestPopup:(action:"close"|"delete"|"save", noteId:string) => void,
-    sidebarFunctions:{
-        addPinnedNote: (pinData:SidebarData) => void
-        removePinnedNote: (noteId:string) => void
-        updatePinnedNote: (pinData:SidebarData) => void
-        updateRecentNotes: (recentData:SidebarData) => void
-        removeRecentNote: (noteId:string) => void
-    }
 }
 
 type ExpandedWindow = {
@@ -45,36 +38,44 @@ type ExpandedWindow = {
     }
 }
 
-type SidebarData = {
-    noteId:string,
-    title:string,
-    position:{
-        x:number,
-        y:number
-    }
-}
-
 type BoardNode = Node<NoteData>
 
-const lastClick = useRef(0);
-
-type BoardProps = {
-    pinnedNotes:SidebarData[]
-    recentNotes:SidebarData[]
-    sidebarFunctions:{
-        addPinnedNote: (pinData:SidebarData) => void
-        removePinnedNote: (noteId:string) => void
-        updatePinnedNote: (pinData:SidebarData) => void
-        updateRecentNotes: (recentData:SidebarData) => void
-        removeRecentNote: (noteId:string) => void
-    }
-}
-
-function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
+function Board(){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
 
-    useEffect(() => {console.log(recentNotes)},[recentNotes])
+    const {
+        pinnedNotes,
+        recentNotes,
+        addPinnedNote,
+        removePinnedNote,
+        updatePinnedNote,
+        updateRecentNotes,
+        removeRecentNote,
+        boardAction,
+        resetBoardAction
+    } = useBoard()
+
+    useEffect(() => {
+        console.log(boardAction)
+        if (boardAction !== null) {
+            const noteToActOn = nodes.find(note => note.id == boardAction.noteId)
+            if (!noteToActOn) {return}
+            if (boardAction.type === "open"){
+                onExpand(noteToActOn);
+            }
+            if (boardAction.type === "pan"){
+                let centerPosX = noteToActOn.position.x;
+                if (noteToActOn.data.width) {centerPosX += 10 + noteToActOn.data.width/2}
+
+                let centerPosY = noteToActOn.position.y;
+                if (noteToActOn.data.height) {centerPosY += 10 + noteToActOn.data.height/2}
+
+                setCenter(centerPosX, centerPosY, {zoom:1.2, duration:1000});
+            }
+            resetBoardAction()
+        }
+    },[boardAction])
 
     // if pinned notes changes, make sure all notes are correctly pinned/unpinned
     useEffect(()=>{
@@ -96,27 +97,17 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
             // for every pinnedNote
             nodes.map(note => {
                 // update with newest data of corresponding note
-                if (pinnedNote.noteId == note.id && sidebarDataChanged(pinnedNote, note)) {sidebarFunctions.updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title, position:note.position})}
+                if (pinnedNote.noteId == note.id && pinnedNote.title !== note.data.title) {updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title})}
             })
         })
 
         recentNotes.forEach(recentNote =>{
             nodes.map(note => {
-                if (recentNote.noteId == note.id && sidebarDataChanged(recentNote, note)) {sidebarFunctions.updateRecentNotes({noteId:recentNote.noteId, title:note.data.title, position:note.position})}
+                if (recentNote.noteId == note.id && recentNote.title !== note.data.title) {updateRecentNotes({noteId:recentNote.noteId, title:note.data.title})}
             })
         })
 
     },[nodes])
-
-    function sidebarDataChanged(pinnedNote:SidebarData, note: BoardNode){
-        return (
-            pinnedNote.title !== note.data.title || (
-                pinnedNote.position &&(
-                    pinnedNote.position.x !== note.position.x ||
-                    pinnedNote.position.y !== note.position.y)
-            )
-        )
-    }
 
     function updateNodeData(id: string, newData:any, context:string){
         if (context=="save"){
@@ -150,8 +141,8 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
 
     function removeNode(id:string) {
         setNodes(currentNodes => currentNodes.filter(node => node.id !== id))
-        sidebarFunctions.removePinnedNote(id);
-        sidebarFunctions.removeRecentNote(id);
+        removePinnedNote(id);
+        removeRecentNote(id);
     }
 
     function handleNodeChanges(changes:any) {
@@ -159,7 +150,10 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
     }
 
     // useReactFlow returns several helper functions, picking one to use
-    const screenToFlowPosition = useReactFlow().screenToFlowPosition;
+    const { screenToFlowPosition, setCenter } = useReactFlow();
+    
+
+    const lastClick = useRef(0);
 
     function handleClick(data: { clientX: any; clientY: any; }){
         if (Date.now() - lastClick.current <= 250){ handleDoubleClick(data); }
@@ -195,11 +189,11 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
                 expandedWidth:400,
                 expandedHeight:400,
                 pinned:false,
+
                 onExpand,
                 updateNoteSize,
                 removeNode,
                 requestPopup,
-                sidebarFunctions
             }
         }
         setNodes(currentItems =>[...currentItems, newNote])
@@ -226,7 +220,7 @@ function Board({ pinnedNotes, recentNotes, sidebarFunctions }:BoardProps){
             return([...current, newExpandedNote])
         }
         );
-        sidebarFunctions.updateRecentNotes({noteId:noteProps.id, title:noteData.title, position:noteProps.position})
+        updateRecentNotes({noteId:noteProps.id, title:noteData.title})
     }
 
     function getCenterOfView(){
