@@ -66,10 +66,12 @@ function Board(){
             }
             if (boardAction.type === "pan"){
                 let centerPosX = noteToActOn.position.x;
-                if (noteToActOn.data.width) {centerPosX += 10 + noteToActOn.data.width/2}
+                const width = noteToActOn.measured?.width ?? noteToActOn.data.width
+                if (noteToActOn.data.width) {centerPosX += width/2}
 
                 let centerPosY = noteToActOn.position.y;
-                if (noteToActOn.data.height) {centerPosY += 10 + noteToActOn.data.height/2}
+                const height = noteToActOn.measured?.height ?? noteToActOn.data.height
+                if (noteToActOn.data.height) {centerPosY += height/2}
 
                 setCenter(centerPosX, centerPosY, {zoom:1.2, duration:1000});
             }
