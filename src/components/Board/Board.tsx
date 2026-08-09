@@ -7,6 +7,7 @@ import ExpandedNote from "../Note/ExpandedNote"
 import Popup from "../Popup/Popup";
 import { useEffect, useState, useRef } from "react"
 import { useBoard } from "../../context/BoardContext";
+import { saveBoard, loadBoard } from "../../store/boardStore";
 
 const nodeTypes = {
     note: Note,
@@ -115,7 +116,7 @@ function Board(){
 
     },[nodes])
 
-    useEffect(() =>{saveBoard()},[nodes,recentNotes])
+    useEffect(() =>{saveCurrentBoard()},[nodes,recentNotes])
 
     function updateNodeData(id: string, newData:any, context:string){
         if (context=="save"){
@@ -294,11 +295,11 @@ function Board(){
 
     // on initial render, load board
     useEffect(() => {
-        loadBoard()
+        loadCurrentBoard()
         setHasLoaded(true)
     }, [])
 
-    function saveBoard(){
+    function saveCurrentBoard(){
         if (!hasLoaded) {return}
         // convert board into persistent data
 
@@ -322,18 +323,15 @@ function Board(){
             pinnedNotes
         }
 
-        const json = JSON.stringify(boardData);
-
-        console.log(json)
-        localStorage.setItem("thinkable-board", json);
+        saveBoard(boardData)
 
 
     }
 
-    function loadBoard(){
-        const json = localStorage.getItem("thinkable-board");
-        if (!json) {return} // if no saved board, stop
-        const boardData = JSON.parse(json)
+    function loadCurrentBoard(){
+
+        const boardData = loadBoard()
+        if (boardData === null) {return}
 
         const noteList = boardData.notes.map((note: any) => ({
             ...note,
