@@ -43,6 +43,7 @@ type BoardNode = Node<NoteData>
 function Board(){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
+    const [hasLoaded, setHasLoaded] = useState(false);
 
     const {
         pinnedNotes,
@@ -53,14 +54,17 @@ function Board(){
         updateRecentNotes,
         removeRecentNote,
         boardAction,
-        resetBoardAction
+        resetBoardAction,
+        loadRecentNotes,
+        loadPinnedNotes
     } = useBoard()
 
     useEffect(() => {
         console.log(boardAction)
         if (boardAction !== null) {
+            if (boardAction.type === "clear"){setNodes([]); loadPinnedNotes([]); loadRecentNotes([]);}
             const noteToActOn = nodes.find(note => note.id == boardAction.noteId)
-            if (!noteToActOn) {return}
+            if (!noteToActOn) {resetBoardAction(); return}
             if (boardAction.type === "open"){
                 onExpand(noteToActOn);
             }
@@ -110,6 +114,8 @@ function Board(){
         })
 
     },[nodes])
+
+    useEffect(() =>{saveBoard()},[nodes,recentNotes])
 
     function updateNodeData(id: string, newData:any, context:string){
         if (context=="save"){
@@ -284,6 +290,65 @@ function Board(){
 
     function requestPopup(action: "close" | "delete" | "save", noteId:string, data?:any){
         setPopup({action, noteId, data})
+    }
+
+    // on initial render, load board
+    useEffect(() => {
+        loadBoard()
+        setHasLoaded(true)
+    }, [])
+
+    function saveBoard(){
+        if (!hasLoaded) {return}
+        // convert board into persistent data
+
+        // board data is now an object of (all relevant note data, and the list of recentNotes)
+        const boardData = {
+            notes: nodes.map(note => ({
+                id:note.id,
+                type: note.type,
+                position:note.position,
+                data:{
+                    title: note.data.title,
+                    text: note.data.text,
+                    width: note.data.width,
+                    height: note.data.height,
+                    expandedWidth: note.data.expandedWidth,
+                    expandedHeight: note.data.expandedHeight,
+                    pinned: note.data.pinned
+                }
+            })),
+            recentNotes,
+            pinnedNotes
+        }
+
+        const json = JSON.stringify(boardData);
+
+        console.log(json)
+        localStorage.setItem("thinkable-board", json);
+
+
+    }
+
+    function loadBoard(){
+        const json = localStorage.getItem("thinkable-board");
+        if (!json) {return} // if no saved board, stop
+        const boardData = JSON.parse(json)
+
+        const noteList = boardData.notes.map((note: any) => ({
+            ...note,
+            data: {
+                ...note.data,
+                onExpand,
+                updateNoteSize,
+                removeNode,
+                requestPopup
+            }
+        }));
+        setNodes(noteList);
+        loadRecentNotes(boardData.recentNotes);
+        loadPinnedNotes(boardData.pinnedNotes);
+         
     }
 
     return(

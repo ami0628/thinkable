@@ -6,8 +6,8 @@ export type SidebarData = {
 }
 
 export type BoardAction = {
-    type: "open" | "pan",
-    noteId: string
+    type: "open" | "pan" | "clear",
+    noteId: string | null
 }
 
 type BoardContextValue = {
@@ -17,9 +17,11 @@ type BoardContextValue = {
     addPinnedNote: (pinData:SidebarData) => void
     removePinnedNote: (noteId:string) => void
     updatePinnedNote: (pinData:SidebarData) => void
+    loadPinnedNotes: (pins:SidebarData[]) => void
 
     updateRecentNotes: (mostRecentData:SidebarData) => void
     removeRecentNote: (noteId:string) => void
+    loadRecentNotes: (notes: SidebarData[]) => void
     
     boardAction: BoardAction | null
     requestBoardAction: (action: BoardAction) => void
@@ -45,6 +47,7 @@ export function BoardProvider({children}: BoardProviderProps) {
                         if (pinData.noteId == pinnedNote.noteId) {return pinData}
                         else {return pinnedNote}
             }))}
+            function loadPinnedNotes(pins:SidebarData[]){setPinnedNotes(pins)}
 
     const [recentNotes, setRecentNotes] = useState<SidebarData[]>([])
             function updateRecentNotes(mostRecentData:SidebarData) {
@@ -52,6 +55,7 @@ export function BoardProvider({children}: BoardProviderProps) {
                 setRecentNotes(current => [mostRecentData, ...current.filter(recentNote => recentNote.noteId !== mostRecentData.noteId)].slice(0,10))
             }
             function removeRecentNote(noteId:string){setRecentNotes(current => current.filter(recentNote => recentNote.noteId !== noteId))}
+            function loadRecentNotes(notes: SidebarData[]) {setRecentNotes(notes)}
 
 
     return (
@@ -64,9 +68,11 @@ export function BoardProvider({children}: BoardProviderProps) {
                 addPinnedNote,
                 removePinnedNote,
                 updatePinnedNote,
+                loadPinnedNotes,
 
                 updateRecentNotes,
                 removeRecentNote,
+                loadRecentNotes,
 
                 boardAction,
                 requestBoardAction,

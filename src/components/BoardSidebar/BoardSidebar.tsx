@@ -35,7 +35,7 @@ function BoardSidebar(){
         <aside>
             <div className="sidebar-heading clickable"><Brain/> Boards </div>
             <div className="sidebar-heading clickable"><Search/> Search  </div>
-            <div className="sidebar-heading clickable"><Settings/> Settings  </div>
+            <div className="sidebar-heading clickable" onClick={() => requestBoardAction({type:"clear", noteId:null})}><Settings/> Settings  </div>
             
             <br/>
             <div className="sidebar-lists-container">
