@@ -24,16 +24,16 @@ export type SavedBoard = {
     recentNotes: SidebarData[]
 }
 
-const BOARD_STORAGE_KEY = "thinkable-board";
-export function saveBoard(board: SavedBoard) {
+export function saveBoard(boardId:string, board: SavedBoard) {
     const json = JSON.stringify(board);
-    localStorage.setItem(BOARD_STORAGE_KEY, json)
+    localStorage.setItem(boardId, json)
+    console.log(localStorage)
     console.log("saving")
 }
 
 
-export function loadBoard(): SavedBoard | null{
-    const json = localStorage.getItem(BOARD_STORAGE_KEY)
+export function loadBoard(boardId:string): SavedBoard | null{
+    const json = localStorage.getItem(boardId)
     if (!json) {return null;}
     console.log("loading")
     return JSON.parse(json);

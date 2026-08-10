@@ -39,9 +39,13 @@ type ExpandedWindow = {
     }
 }
 
+type BoardProps = {
+    boardId:string
+}
+
 type BoardNode = Node<NoteData>
 
-function Board(){
+function Board(props:BoardProps){
     const [nodes, setNodes] = useState<BoardNode[]>([]);
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
     const [hasLoaded, setHasLoaded] = useState(false);
@@ -323,14 +327,14 @@ function Board(){
             pinnedNotes
         }
 
-        saveBoard(boardData)
+        saveBoard(props.boardId, boardData)
 
 
     }
 
     function loadCurrentBoard(){
 
-        const boardData = loadBoard()
+        const boardData = loadBoard(props.boardId)
         if (boardData === null) {return}
 
         const noteList = boardData.notes.map((note: any) => ({

@@ -30,7 +30,9 @@ type BoardContextValue = {
 
 const BoardContext = createContext<BoardContextValue | null>(null)
 
-type BoardProviderProps = {children: ReactNode}
+type BoardProviderProps = {
+    children: ReactNode
+}
 
 export function BoardProvider({children}: BoardProviderProps) {
     

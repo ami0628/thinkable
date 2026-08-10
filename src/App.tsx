@@ -3,7 +3,7 @@ import { ReactFlowProvider } from "@xyflow/react"
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import Board from "./pages/Board/BoardPage";
+import BoardPage from "./pages/Board/BoardPage";
 
 function App() {
   return(
@@ -13,7 +13,7 @@ function App() {
           <Route path="/" element={<Home/>}></Route>
           <Route path="/login" element={<Login/>}></Route>
           <Route path="/dashboard" element={<Dashboard/>}></Route>
-          <Route path="/board" element={<Board/>}></Route>
+          <Route path="/board/:boardId" element={<BoardPage/>}></Route>
         </Routes>
       </BrowserRouter>
     </ReactFlowProvider>
