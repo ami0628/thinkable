@@ -3,6 +3,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 export type SidebarData = {
     noteId:string,
     title:string,
+    lastOpened: number
 }
 
 export type BoardAction = {

@@ -1,8 +1,65 @@
-import Header from "../../components/Header/Header"
-import "./Dashboard.css"
+import Header from "../../components/Header/Header";
+import { loadBoard, getMostRecentlyOpened, getAllBoardDetails, getAllNotesOfType } from "../../store/boardStore";
+import "./Dashboard.css";
 import { Search, SquarePlus, Brain, Clock, Pin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
 
 function Dashboard (){
+
+    const navigate = useNavigate();
+    const [showCreateBoard,setShowCreateBoard] = useState(false);
+    function toggleOverlay(){setShowCreateBoard(!showCreateBoard)}
+
+    const [boardName, setBoardName] = useState("");
+    const [validName, setValidName] = useState(true);
+
+    const [showBoardMenu, setShowBoardMenu] = useState(false);
+    function toggleBoardMenu(){setShowBoardMenu(!showBoardMenu)}
+
+    useEffect(() => {
+        if(showCreateBoard){window.addEventListener("click",toggleOverlay)}
+        return () => window.removeEventListener("click", toggleOverlay)
+    }, [showCreateBoard])
+
+    useEffect(() => {
+        if(showBoardMenu){window.addEventListener("click",toggleBoardMenu)}
+        return () => window.removeEventListener("click", toggleBoardMenu)
+    }, [showBoardMenu])
+
+
+    const allPinnedNotes = getAllNotesOfType("pinned");
+    const allRecentNotes = getAllNotesOfType("recent");
+
+    const mostRecentBoard = getMostRecentlyOpened();
+
+    function createBoard(){
+        if (loadBoard(boardName) == null) {navigate("/board/" + boardName.toString());}
+        else {setValidName(false);}
+    }
+
+    const allBoardDetails:{id:string, noteCount:number, lastOpened:number}[] | null = getAllBoardDetails();
+    const excessBoards = allBoardDetails ? allBoardDetails.length > 4 : false;
+    const boardsToList = excessBoards ? allBoardDetails?.slice(0,3) : allBoardDetails
+
+    function calculateTimeAgo(lastOpened:number){
+        const difference = Date.now() - lastOpened;
+        const seconds = Math.floor(difference / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24)
+        const weeks = Math.floor(days / 7)
+        const months = Math.floor(weeks / 4)
+
+        if (seconds < 60) {return "just now";}
+        if (minutes < 60) {return minutes.toString() + "m ago";}
+        if (hours < 24) {return hours.toString() + "h ago";}
+        if (days < 7) {return days.toString() + "d ago";}
+        if (weeks < 4) {return weeks.toString() + "w ago";}
+        return months.toString + "mo ago"
+
+    }
+
     return(
         <div>
             <Header></Header>
@@ -16,48 +73,52 @@ function Dashboard (){
                     </div>
                     </div>
                     <div className="board-choices-big">
-                        <div className="dashboard-card big">
+                        <div className="dashboard-card big" onClick={(event) => {event.stopPropagation(); toggleOverlay();}}>
                             <p> New board </p>
                             <SquarePlus className="icon"/>
                             <p> Start thinking with a blank canvas. </p>
                         </div>
-                        <div className="dashboard-card big">
-                            <p> Continue thinking... </p>
-                            <Brain className="icon"/>
-                            <div>
-                                <p className="dashboard-card-title"> Project Ideas </p>
-                                <p className="last-opened"> Last opened: 43 minutes ago. </p>
+                        {mostRecentBoard && 
+                            <div className="dashboard-card big" onClick={() => navigate(`/board/${mostRecentBoard?.id}`)}>
+                                <p> Continue thinking... </p>
+                                <Brain className="icon"/>
+                                <div>
+                                    <p className="dashboard-card-title"> {mostRecentBoard !== null ? mostRecentBoard.id : "test"} </p>
+                                    <p className="last-opened big"> Last opened: {mostRecentBoard !== null ? calculateTimeAgo(mostRecentBoard.lastOpened) : "test"}. </p>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                     <div className="your-boards-container">
                         <h4> Your boards:</h4>
                         <hr></hr>
+                        <div className="board-choices-container">
                         <div className="board-choices">
-                            <div className="dashboard-card small">
-                                <p className="dashboard-card-title"> University </p>
-                                <div>
-                                <p className="dashboard-card-title"> 36 notes </p>
-                                <p className="last-opened"> Last opened: 2d ago </p>
-                                </div>                                
-                            </div>
-                            <div className="dashboard-card small">
-                                <p className="dashboard-card-title"> Recipes </p>
-                                <div>
-                                <p className="dashboard-card-title"> 12 notes </p>
-                                <p className="last-opened"> Last opened: 2w ago </p>   
-                                </div>                               
-                            </div>
-                            <div className="dashboard-card small">
-                                <p className="dashboard-card-title"> Project ideas </p>
-                                <div>
-                                <p className="dashboard-card-title"> 25 notes </p>
-                                <p className="last-opened"> Last opened: 1h ago </p>
+                            {!allBoardDetails &&
+                                <div className="dashboard-card small center-text">
+                                    <p className="dashboard-card-title"> Your boards will show up here. </p>
+                                </div>}
+                            {!allBoardDetails &&
+                                <div className="dashboard-card small center-text">
+                                    <p className="dashboard-card-title"> Create a board to get started!</p>
+                                </div>}
+                            {allBoardDetails && boardsToList &&
+                                boardsToList.map(board => {return(
+                                    <div className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
+                                        <p className="dashboard-card-title"> {board.id} </p>
+                                        <div>
+                                        <p className="dashboard-card-title"> {board.noteCount} notes </p>
+                                        <p className="last-opened big"> Last opened: {calculateTimeAgo(board.lastOpened)} </p>
+                                        </div> 
+                                    </div>
+                                )})
+                            }
+                            {allBoardDetails && excessBoards &&
+                                <div className="dashboard-card small center-text" onClick={(event) => {event.stopPropagation(); toggleBoardMenu()}}>
+                                    <p className="dashboard-card-title"> More boards... </p>
                                 </div>
-                            </div>
-                            <div className="dashboard-card small more">
-                                <p className="dashboard-card-title"> More boards </p>
-                            </div>
+                            }
+                        </div>
                         </div>
                     </div>
                     <div className="pinned-recents-container">
@@ -65,44 +126,80 @@ function Dashboard (){
                             <h4>Pinned notes: <Pin/></h4>
                             <hr></hr>
                             <div className="pins">
-                                <div className="dashboard-card dashboard-note pin">
-                                    <p>Thai green curry</p>
-                                </div>
-                                <div className="dashboard-card dashboard-note pin">
-                                    <p>Dark steel recipe</p>
-                                </div>
-                                <div className="dashboard-card dashboard-note pin">
-                                    <p>Compilers lecture notes</p>
-                                </div>
-                                <div className="dashboard-card dashboard-note pin">
-                                    <p>Next function added</p>
-                                </div>
+                                {allPinnedNotes && allPinnedNotes.map(note => (
+                                    <div className="dashboard-card dashboard-note pin" onClick={() => navigate(`/board/${note.boardId}?note=${note.noteId}`)}>
+                                        <p className="dashboard-note-title"> {note.title} </p>
+                                        <p className="dashboard-note-details"> Board: {note.boardId}</p>
+                                        <p className="dashboard-note-details">Last accessed: {calculateTimeAgo(note.lastOpened)}</p>
+                                    </div>
+                                ))}
+                                {!allPinnedNotes &&
+                                    <div className="dashboard-card dashboard-note pin">
+                                        <p className="dashboard-note-title"> Pinned notes will appear here. </p>
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className="recents-container">
                             <h4>Recents: <Clock/></h4>
                             <hr></hr>
                             <div className="recents">
-                                <div className="dashboard-card dashboard-note recent">
-                                    <p>Things i forget</p>
-                                    <p className="last-opened">Last accessed: 2d ago</p>
-                                </div>
-                                <div className="dashboard-card dashboard-note recent">
-                                    <p>new code</p>
-                                    <p className="last-opened">Last accessed: 1h ago</p>
-                                </div>
-                                <div className="dashboard-card dashboard-note recent">
-                                    <p>OK films</p>
-                                    <p className="last-opened">Last accessed: 3h ago</p>
-                                </div>
-                                <div className="dashboard-card dashboard-note recent">
-                                    <p>im running out of examples</p>
-                                    <p className="last-opened">Last accessed: 5m ago</p>
-                                </div>
+                                {allRecentNotes && allRecentNotes.map(note => (
+                                    <div className="dashboard-card dashboard-note" onClick={() => navigate(`/board/${note.boardId}?note=${note.noteId}`)}>
+                                        <p className="dashboard-note-title"> {note.title} </p>
+                                        <p className="dashboard-note-details"> Board: {note.boardId}</p>
+                                        <p className="dashboard-note-details">Last accessed: {calculateTimeAgo(note.lastOpened)}</p>
+                                    </div>
+                                ))}
+                                {!allRecentNotes &&
+                                    <div className="dashboard-card dashboard-note pin">
+                                        <p className="dashboard-note-title"> Recent notes will appear here. </p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
                 </div>
+                {showCreateBoard && 
+                <div className="dashboard-popup-overlay">
+                    <div className="create-board-card" onClick={(event) => event.stopPropagation()}>
+                        <div className="create-board">
+                            <p className="create-board-title"> Create a new Board </p>
+                            <div className="input-warning-container">
+                            <input className={`${!validName && "warning"}`} value={boardName} onChange={(event) => {setBoardName(event.target.value); setValidName(true)}}type="text" placeholder="Name"/>
+                            {!validName && <p className="warning-text"> A board with that name already exists. </p>} 
+                            </div>
+                            <div className="create-board-buttons">
+                                <button className="button cancel" onClick={toggleOverlay}> Cancel </button>
+                                <button className="button create" onClick={createBoard}> Create </button>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+                }
+                {showBoardMenu && 
+                <div className="dashboard-popup-overlay">
+                    <div className="board-menu-card" onClick={(event) => event.stopPropagation()}>
+                        <div className="board-menu">
+                            <div className="board-menu-heading">  Saved boards </div>
+                            <div className="board-menu-body">
+
+                                {allBoardDetails &&
+                                    allBoardDetails.map(board => (
+                                        <div className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
+                                            <p className="dashboard-card-title"> {board.id} </p>
+                                            <div>
+                                            <p className="dashboard-card-title"> {board.noteCount} notes </p>
+                                            <p className="last-opened big"> Last opened: {calculateTimeAgo(board.lastOpened)} </p>
+                                            </div> 
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+                }
             </div>
         </div>
     );

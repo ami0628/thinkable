@@ -8,6 +8,7 @@ import Popup from "../Popup/Popup";
 import { useEffect, useState, useRef } from "react"
 import { useBoard } from "../../context/BoardContext";
 import { saveBoard, loadBoard } from "../../store/boardStore";
+import { useParams, useSearchParams } from "react-router-dom"
 
 const nodeTypes = {
     note: Note,
@@ -21,6 +22,7 @@ type NoteData = {
     expandedWidth:number,
     expandedHeight:number,
     pinned:boolean,
+    lastOpened:number,
     onExpand: (data:any) => void,
     updateNoteSize: (id:string, size:{width:number, height:number}) => void,
     removeNode: (id:string) => void,
@@ -41,6 +43,7 @@ type ExpandedWindow = {
 
 type BoardProps = {
     boardId:string
+    noteToPanTo:string | null
 }
 
 type BoardNode = Node<NoteData>
@@ -65,7 +68,6 @@ function Board(props:BoardProps){
     } = useBoard()
 
     useEffect(() => {
-        console.log(boardAction)
         if (boardAction !== null) {
             if (boardAction.type === "clear"){setNodes([]); loadPinnedNotes([]); loadRecentNotes([]);}
             const noteToActOn = nodes.find(note => note.id == boardAction.noteId)
@@ -74,19 +76,27 @@ function Board(props:BoardProps){
                 onExpand(noteToActOn);
             }
             if (boardAction.type === "pan"){
-                let centerPosX = noteToActOn.position.x;
-                const width = noteToActOn.measured?.width ?? noteToActOn.data.width
-                if (noteToActOn.data.width) {centerPosX += width/2}
-
-                let centerPosY = noteToActOn.position.y;
-                const height = noteToActOn.measured?.height ?? noteToActOn.data.height
-                if (noteToActOn.data.height) {centerPosY += height/2}
-
-                setCenter(centerPosX, centerPosY, {zoom:1.2, duration:1000});
+                panTo(noteToActOn.id,"animate")
             }
             resetBoardAction()
         }
     },[boardAction])
+
+    function panTo(noteId:string, type:string){
+        const noteToActOn = nodes.find(note => note.id == noteId)
+        if (!noteToActOn) {return;}
+
+        let centerPosX = noteToActOn.position.x;
+            const width = noteToActOn.measured?.width ?? noteToActOn.data.width
+            if (noteToActOn.data.width) {centerPosX += width/2}
+
+            let centerPosY = noteToActOn.position.y;
+            const height = noteToActOn.measured?.height ?? noteToActOn.data.height
+            if (noteToActOn.data.height) {centerPosY += height/2}
+
+            if (type == "snap") {setCenter(centerPosX, centerPosY, {zoom:1.2});}
+            else {setCenter(centerPosX, centerPosY, {zoom:1.2, duration:1000});}
+    }
 
     // if pinned notes changes, make sure all notes are correctly pinned/unpinned
     useEffect(()=>{
@@ -108,13 +118,13 @@ function Board(props:BoardProps){
             // for every pinnedNote
             nodes.map(note => {
                 // update with newest data of corresponding note
-                if (pinnedNote.noteId == note.id && pinnedNote.title !== note.data.title) {updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title})}
+                if (pinnedNote.noteId == note.id && pinnedNote.title !== note.data.title) {updatePinnedNote({noteId:pinnedNote.noteId, title:note.data.title, lastOpened:Date.now()})}
             })
         })
 
         recentNotes.forEach(recentNote =>{
             nodes.map(note => {
-                if (recentNote.noteId == note.id && recentNote.title !== note.data.title) {updateRecentNotes({noteId:recentNote.noteId, title:note.data.title})}
+                if (recentNote.noteId == note.id && recentNote.title !== note.data.title) {updateRecentNotes({noteId:recentNote.noteId, title:note.data.title, lastOpened:Date.now()})}
             })
         })
 
@@ -163,7 +173,7 @@ function Board(props:BoardProps){
     }
 
     // useReactFlow returns several helper functions, picking one to use
-    const { screenToFlowPosition, setCenter } = useReactFlow();
+    const { screenToFlowPosition, setCenter, fitView } = useReactFlow();
     
 
     const lastClick = useRef(0);
@@ -202,6 +212,7 @@ function Board(props:BoardProps){
                 expandedWidth:400,
                 expandedHeight:400,
                 pinned:false,
+                lastOpened:Date.now(),
 
                 onExpand,
                 updateNoteSize,
@@ -233,7 +244,8 @@ function Board(props:BoardProps){
             return([...current, newExpandedNote])
         }
         );
-        updateRecentNotes({noteId:noteProps.id, title:noteData.title})
+        updateRecentNotes({noteId:noteProps.id, title:noteData.title, lastOpened: Date.now()})
+        updatePinnedNote({noteId:noteProps.id, title:noteData.title, lastOpened:Date.now()})
     }
 
     function getCenterOfView(){
@@ -303,12 +315,17 @@ function Board(props:BoardProps){
         setHasLoaded(true)
     }, [])
 
+    useEffect(() => {
+        if (props.noteToPanTo) {panTo(props.noteToPanTo,"snap")}
+    },[hasLoaded])
+
     function saveCurrentBoard(){
         if (!hasLoaded) {return}
         // convert board into persistent data
 
         // board data is now an object of (all relevant note data, and the list of recentNotes)
         const boardData = {
+            id: props.boardId,
             notes: nodes.map(note => ({
                 id:note.id,
                 type: note.type,
@@ -324,10 +341,11 @@ function Board(props:BoardProps){
                 }
             })),
             recentNotes,
-            pinnedNotes
+            pinnedNotes,
+            lastOpened: Date.now()
         }
 
-        saveBoard(props.boardId, boardData)
+        saveBoard(boardData)
 
 
     }
@@ -350,6 +368,7 @@ function Board(props:BoardProps){
         setNodes(noteList);
         loadRecentNotes(boardData.recentNotes);
         loadPinnedNotes(boardData.pinnedNotes);
+        if (!props.noteToPanTo) {fitView()}
          
     }
 

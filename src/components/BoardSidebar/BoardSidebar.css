@@ -1,5 +1,5 @@
 aside{
-    width: 10vw;
+    width: 11.5vw;
     height: calc(100vh - var(--header-height));
 
     background-color: var(--surface);

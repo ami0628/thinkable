@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "./Header.css"
 function Header(){
+    const navigate = useNavigate()
+
     return(
-        <header> Thinkable </header>
+        <header> <p onClick={() => navigate(`/`)}>  Thinkable  </p>  </header>
     );
 }
 

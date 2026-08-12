@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom"
+import Header from "../../components/Header/Header"
 
 function Home (){
     return(
         <div>
-            <div id="header"> <h1> Thinkable </h1> </div>
+            <Header/>
             <Link id="yes" to="/dashboard">
                 Open Dashboard
             </Link>  

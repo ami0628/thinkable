@@ -114,8 +114,8 @@ function Note(props:any){
                     <h3 ref={titleRef} onDoubleClick={() => data.onExpand(props)}> {data.title} </h3>
                     <div className="icons nodrag nopan" ref={iconsRef}> 
                         <SquarePen onClick={(event) => {event.stopPropagation(); data.onExpand(props)}} className="icon nodrag nopan" />
-                        {!data.pinned? 
-                            <Pin onClick={(event) => {event.stopPropagation(); addPinnedNote({noteId:props.id, title:data.title})}} className="icon"/> 
+                        {!data.pinned?
+                            <Pin onClick={(event) => {console.log("last opened: " + data.lastOpened); event.stopPropagation(); addPinnedNote({noteId:props.id, title:data.title, lastOpened:data.lastOpened})}} className="icon"/> 
                             : 
                             <PinOff onClick={(event) => {event.stopPropagation(); removePinnedNote(props.id);}} className="icon"/>} 
                         <Ellipsis className="icon" onClick={(event)=> {event.stopPropagation(); toggleMenuOpen()}}/> 
