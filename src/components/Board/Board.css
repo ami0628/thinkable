@@ -2,3 +2,35 @@
     width: calc(100vw);
     height: calc(100vh - var(--header-height));
 }
+
+.board-search-container{
+    position: absolute;
+    top:111px;
+    left:290px;
+
+    width: 80vw;
+    height: 3em;
+    background-color: var(--surface-light);
+    padding-left: 8px;
+    padding-right: 8px;
+    border:solid 1px var(--border);
+    border-radius: var(--radius-sm);
+
+    display: flex;
+    align-items: center;
+}
+
+.board-search-container:has(.search:focus){
+    outline: solid 2px var(--primary);
+}
+
+.close-icon{
+    padding:3px;
+    width:2.2em;
+    height:2.2em;
+}
+
+.close-icon:hover{
+    background-color: var(--surface);
+    cursor: pointer;
+}

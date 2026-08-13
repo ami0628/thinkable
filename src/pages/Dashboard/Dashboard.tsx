@@ -93,15 +93,12 @@ function Dashboard (){
             if (noteType == "title") {stringToCompare = note.data.title.toLowerCase()}
             else {stringToCompare = note.data.text.toLowerCase()}
 
-            console.log("comparing " + searchText + " and " + stringToCompare)
-
             if (stringToCompare == searchText) {return {note:note, score:3}}
             if (stringToCompare.startsWith(searchText)) {return {note:note, score:2}}
             else {return {note:note, score:1}}
         })
 
         noteListWithScore.sort((a,b) => b.score - a.score)
-        console.log(noteListWithScore)
 
         return noteListWithScore.map(noteAndScore => {return noteAndScore.note})
     }
@@ -122,7 +119,7 @@ function Dashboard (){
                                         <div className="search-dropdown-heading"> Title matches: </div>
                                         { titleMatches &&
                                             titleMatches.map(note => (
-                                                <div className="search-result" onMouseDown={(event) => {event.preventDefault(); navigate(`/board/${note.boardId}?note=${note.id}`)}}>
+                                                <div className="search-result" onMouseDown={(event) => {event.preventDefault();navigate(`/board/${note.boardId}?note=${note.id}`)}}>
                                                     <p className="search-result-title"> {note.data.title} </p>
                                                     <div className="search-result-text-preview"/> {/* keeps styling consistent */}
                                                     <p className="search-result-board"> Board: {note.boardId} </p>
@@ -136,7 +133,7 @@ function Dashboard (){
                                         <div className="search-dropdown-heading"> Text matches: </div>
                                         { textMatches &&
                                             textMatches.map(note => (
-                                                <div className="search-result">
+                                                <div className="search-result" onMouseDown={(event) => {event.preventDefault();navigate(`/board/${note.boardId}?note=${note.id}`)}}>
                                                     <p className="search-result-title"> {note.data.title} </p>
                                                     <p className="search-result-text-preview"> {note.data.text.length > 128? note.data.text.slice(0,128)+"..." : note.data.text}</p>
                                                     <p className="search-result-board"> Board: {note.boardId} </p>

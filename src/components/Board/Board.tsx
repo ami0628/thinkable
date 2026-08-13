@@ -8,7 +8,8 @@ import Popup from "../Popup/Popup";
 import { useEffect, useState, useRef } from "react"
 import { useBoard } from "../../context/BoardContext";
 import { saveBoard, loadBoard } from "../../store/boardStore";
-import { useParams, useSearchParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom";
+import { Search, X } from "lucide-react";
 
 const nodeTypes = {
     note: Note,
@@ -68,16 +69,14 @@ function Board(props:BoardProps){
     } = useBoard()
 
     useEffect(() => {
+        console.log(boardAction)
         if (boardAction !== null) {
             if (boardAction.type === "clear"){setNodes([]); loadPinnedNotes([]); loadRecentNotes([]);}
+            if (boardAction.type === "search") {toggleSearchBar();console.log("showSearchBar:" + showSearchBar)}
             const noteToActOn = nodes.find(note => note.id == boardAction.noteId)
             if (!noteToActOn) {resetBoardAction(); return}
-            if (boardAction.type === "open"){
-                onExpand(noteToActOn);
-            }
-            if (boardAction.type === "pan"){
-                panTo(noteToActOn.id,"animate")
-            }
+            if (boardAction.type === "open"){onExpand(noteToActOn);}
+            if (boardAction.type === "pan"){panTo(noteToActOn.id,"animate")}
             resetBoardAction()
         }
     },[boardAction])
@@ -373,6 +372,53 @@ function Board(props:BoardProps){
          
     }
 
+    // SEARCH DATA / FUNCTIONS ////////////////////////////////////////////////////////////////////////////////////////
+    const [showSearchBar, setShowSearchBar] = useState(false)
+    function toggleSearchBar(){setShowSearchBar(!showSearchBar); setTitleMatches([]); setTextMatches([])}
+
+    const [searching,setSearching] = useState(false);
+
+    const [titleMatches,setTitleMatches] = useState<BoardNode[]>([])
+    const [textMatches,setTextMatches] = useState<BoardNode[]>([])
+
+    function searchNotes(searchText:string){
+        setTitleMatches([])
+        setTextMatches([])
+        if (searchText == ""){return;}
+
+        if (!nodes) return
+        
+        const titleMatchesLocal:BoardNode[] = []
+        const textMatchesLocal:BoardNode[] = []
+        
+        nodes.forEach(note => {
+            if (note.data.title.toLowerCase().includes(searchText.toLowerCase())) {titleMatchesLocal.push(note)}
+            if (note.data.text.toLowerCase().includes(searchText.toLowerCase())) {textMatchesLocal.push(note)}
+        })
+        
+        setTitleMatches(sortNotesBySearchRelevance(titleMatchesLocal, "title", searchText.toLowerCase()));
+        setTextMatches(sortNotesBySearchRelevance(textMatchesLocal, "text", searchText.toLowerCase()));
+    }
+
+    function sortNotesBySearchRelevance(noteList:BoardNode[], noteType:string, searchText: string):BoardNode[]{
+        let noteListWithScore:{note:BoardNode, score:number}[] = []
+        noteListWithScore = noteList.map(note => {
+            let stringToCompare = ""
+            if (noteType == "title") {stringToCompare = note.data.title.toLowerCase()}
+            else {stringToCompare = note.data.text.toLowerCase()}
+
+            if (stringToCompare == searchText) {return {note:note, score:3}}
+            if (stringToCompare.startsWith(searchText)) {return {note:note, score:2}}
+            else {return {note:note, score:1}}
+        })
+
+        noteListWithScore.sort((a,b) => b.score - a.score)
+
+        return noteListWithScore.map(noteAndScore => {return noteAndScore.note})
+    }
+
+    // END OF SEARCH DATA / FUNCTIONS /////////////////////////////////////////////////////////////////////////////////
+
     return(
         <main className="board-container">
             <ReactFlow nodes={nodes} nodeTypes={nodeTypes} nodesDraggable={true} minZoom={0.1} maxZoom={8} zoomOnDoubleClick={false}
@@ -402,6 +448,40 @@ function Board(props:BoardProps){
                     requestPopup={requestPopup}
                 />
             )}
+            { showSearchBar &&
+            <div className="board-search-container">
+                <Search/>
+                <input type="text" className="search" placeholder="Search notes" onChange={(event) => searchNotes(event.target.value)} onFocus={() => setSearching(true)} onBlur={() => setSearching(false)}></input>
+                <X className="close-icon" onClick={toggleSearchBar}/>
+                {searching && (titleMatches.length > 0 || textMatches.length > 0) &&
+                    <div className="search-dropdown" onClick={(event) => event.preventDefault()}>
+                        {titleMatches.length > 0 && <div className="search-matches">
+                            <div className="search-dropdown-heading"> Title matches: </div>
+                            { titleMatches &&
+                                titleMatches.map(note => (
+                                    <div className="search-result" onMouseDown={(event) => {event.preventDefault(); panTo(note.id,"animate")}}>
+                                        <p className="search-result-title"> {note.data.title} </p>
+                                    </div>
+                                ))
+
+                            }
+                        </div>}
+                        
+                        {textMatches.length > 0 && <div className="search-matches">
+                            <div className="search-dropdown-heading"> Text matches: </div>
+                            { textMatches &&
+                                textMatches.map(note => (
+                                    <div className="search-result"  onMouseDown={(event) => {event.preventDefault(); panTo(note.id,"animate")}}>
+                                        <p className="search-result-title"> {note.data.title} </p>
+                                        <p className="search-result-text-preview"> {note.data.text.length > 128? note.data.text.slice(0,128)+"..." : note.data.text}</p>
+                                    </div>
+                                ))
+
+                            }
+                        </div>}
+                    </div>
+                }
+            </div>}
         </main>
     );
 }
