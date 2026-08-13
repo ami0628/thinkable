@@ -1,5 +1,6 @@
 export type SavedNote = {
     id:string,
+    boardId:string,
     type:string|undefined,
     position: {x:number, y:number}
     data: {
@@ -109,4 +110,14 @@ export function getAllNotesOfType(type:string) :{boardId:string, noteId:string, 
     allNotesOfType.sort((a,b) => b.lastOpened - a.lastOpened)
     if (allNotesOfType) {return allNotesOfType;}
     return null
+}
+
+
+export function getAllNotes():SavedNote[]{
+    const json = localStorage.getItem("boards");
+    if (!json) {return [];}
+    const savedBoards:SavedBoard[] = JSON.parse(json);
+
+    // sets all boards to their array of notes and "flattens" together into one array
+    return savedBoards.flatMap(board => board.notes)
 }

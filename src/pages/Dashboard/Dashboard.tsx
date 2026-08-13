@@ -1,9 +1,10 @@
 import Header from "../../components/Header/Header";
-import { loadBoard, getMostRecentlyOpened, getAllBoardDetails, getAllNotesOfType } from "../../store/boardStore";
+import { loadBoard, getMostRecentlyOpened, getAllBoardDetails, getAllNotesOfType, getAllNotes } from "../../store/boardStore";
 import "./Dashboard.css";
 import { Search, SquarePlus, Brain, Clock, Pin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
+import type { SavedNote } from "../../store/boardStore";
 
 function Dashboard (){
 
@@ -38,6 +39,8 @@ function Dashboard (){
         else {setValidName(false);}
     }
 
+    const [searching,setSearching] = useState(false);
+
     const allBoardDetails:{id:string, noteCount:number, lastOpened:number}[] | null = getAllBoardDetails();
     const excessBoards = allBoardDetails ? allBoardDetails.length > 4 : false;
     const boardsToList = excessBoards ? allBoardDetails?.slice(0,3) : allBoardDetails
@@ -60,17 +63,71 @@ function Dashboard (){
 
     }
 
+    const [titleMatches,setTitleMatches] = useState<SavedNote[]>([])
+    const [textMatches,setTextMatches] = useState<SavedNote[]>([])
+
+    function searchNotes(searchText:string){
+        setTitleMatches([])
+        setTextMatches([])
+        if (searchText == ""){return;}
+
+        let savedNotes:SavedNote[] = getAllNotes();
+        if (!savedNotes) return
+
+        const titleMatchesLocal:SavedNote[] = []
+        const textMatchesLocal:SavedNote[] = []
+
+        savedNotes.forEach(note => {
+            if (note.data.title.toLowerCase().includes(searchText.toLowerCase())) {titleMatchesLocal.push(note)}
+            if (note.data.text.toLowerCase().includes(searchText.toLowerCase())) {textMatchesLocal.push(note)}
+        })
+
+        setTitleMatches(titleMatchesLocal);
+        setTextMatches(textMatchesLocal);
+    }
+
     return(
         <div>
             <Header></Header>
             <div className="body-container">
                 <div className="dashboard-container">
-                    <div className="dashboard-search-heading">
-                    <h3 className="dashboard-heading"> Good evening, Alexander </h3>
-                    <div className="dashboard-search-container">
-                        <Search/>
-                        <input type="text" className="dashboard-search" placeholder="Search"></input>
-                    </div>
+                    <div className="search-heading">
+                        <h3 className="dashboard-heading"> Good evening, Alexander </h3>
+                        <div className="search-container">
+                            <Search/>
+                            <input type="text" className="search" placeholder="Search notes" onChange={(event) => searchNotes(event.target.value)} onFocus={() => setSearching(true)} onBlur={() => setSearching(false)}></input>
+                            {searching && (titleMatches.length > 0 || textMatches.length > 0) &&
+                                <div className="search-dropdown" onClick={(event) => event.preventDefault()}>
+                                    {titleMatches.length > 0 && <div className="search-matches">
+                                        <div className="search-dropdown-heading"> Title matches: </div>
+                                        { titleMatches &&
+                                            titleMatches.map(note => (
+                                                <div className="search-result" onMouseDown={(event) => {event.preventDefault(); navigate(`/board/${note.boardId}?note=${note.id}`)}}>
+                                                    <p className="search-result-title"> {note.data.title} </p>
+                                                    <div className="search-result-text-preview"/> {/* keeps styling consistent */}
+                                                    <p className="search-result-board"> Board: {note.boardId} </p>
+                                                </div>
+                                            ))
+
+                                        }
+                                    </div>}
+                                    
+                                    {textMatches.length > 0 && <div className="search-matches">
+                                        <div className="search-dropdown-heading"> Text matches: </div>
+                                        { textMatches &&
+                                            textMatches.map(note => (
+                                                <div className="search-result">
+                                                    <p className="search-result-title"> {note.data.title} </p>
+                                                    <p className="search-result-text-preview"> {note.data.text.length > 128? note.data.text.slice(0,128)+"..." : note.data.text}</p>
+                                                    <p className="search-result-board"> Board: {note.boardId} </p>
+                                                </div>
+                                            ))
+
+                                        }
+                                    </div>}
+                                </div>
+                            }
+                        </div>
                     </div>
                     <div className="board-choices-big">
                         <div className="dashboard-card big" onClick={(event) => {event.stopPropagation(); toggleOverlay();}}>

@@ -328,6 +328,7 @@ function Board(props:BoardProps){
             id: props.boardId,
             notes: nodes.map(note => ({
                 id:note.id,
+                boardId:props.boardId,
                 type: note.type,
                 position:note.position,
                 data:{
