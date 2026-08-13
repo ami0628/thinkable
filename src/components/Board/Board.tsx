@@ -87,15 +87,15 @@ function Board(props:BoardProps){
         if (!noteToActOn) {return;}
 
         let centerPosX = noteToActOn.position.x;
-            const width = noteToActOn.measured?.width ?? noteToActOn.data.width
-            if (noteToActOn.data.width) {centerPosX += width/2}
+        const width = noteToActOn.measured?.width ?? noteToActOn.data.width
+        if (noteToActOn.data.width) {centerPosX += width/2}
 
-            let centerPosY = noteToActOn.position.y;
-            const height = noteToActOn.measured?.height ?? noteToActOn.data.height
-            if (noteToActOn.data.height) {centerPosY += height/2}
+        let centerPosY = noteToActOn.position.y;
+        const height = noteToActOn.measured?.height ?? noteToActOn.data.height
+        if (noteToActOn.data.height) {centerPosY += height/2}
 
-            if (type == "snap") {setCenter(centerPosX, centerPosY, {zoom:1.2});}
-            else {setCenter(centerPosX, centerPosY, {zoom:1.2, duration:1000});}
+        if (type == "snap") {setCenter(centerPosX, centerPosY, {zoom:1.2});}
+        else {setCenter(centerPosX, centerPosY, {zoom:1.2, duration:1000});}
     }
 
     // if pinned notes changes, make sure all notes are correctly pinned/unpinned

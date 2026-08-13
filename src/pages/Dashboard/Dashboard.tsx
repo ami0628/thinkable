@@ -73,17 +73,37 @@ function Dashboard (){
 
         let savedNotes:SavedNote[] = getAllNotes();
         if (!savedNotes) return
-
+        
         const titleMatchesLocal:SavedNote[] = []
         const textMatchesLocal:SavedNote[] = []
-
+        
         savedNotes.forEach(note => {
             if (note.data.title.toLowerCase().includes(searchText.toLowerCase())) {titleMatchesLocal.push(note)}
             if (note.data.text.toLowerCase().includes(searchText.toLowerCase())) {textMatchesLocal.push(note)}
         })
+        
+        setTitleMatches(sortNotesBySearchRelevance(titleMatchesLocal, "title", searchText.toLowerCase()));
+        setTextMatches(sortNotesBySearchRelevance(textMatchesLocal, "text", searchText.toLowerCase()));
+    }
 
-        setTitleMatches(titleMatchesLocal);
-        setTextMatches(textMatchesLocal);
+    function sortNotesBySearchRelevance(noteList:SavedNote[], noteType:string, searchText: string):SavedNote[]{
+        let noteListWithScore:{note:SavedNote, score:number}[] = []
+        noteListWithScore = noteList.map(note => {
+            let stringToCompare = ""
+            if (noteType == "title") {stringToCompare = note.data.title.toLowerCase()}
+            else {stringToCompare = note.data.text.toLowerCase()}
+
+            console.log("comparing " + searchText + " and " + stringToCompare)
+
+            if (stringToCompare == searchText) {return {note:note, score:3}}
+            if (stringToCompare.startsWith(searchText)) {return {note:note, score:2}}
+            else {return {note:note, score:1}}
+        })
+
+        noteListWithScore.sort((a,b) => b.score - a.score)
+        console.log(noteListWithScore)
+
+        return noteListWithScore.map(noteAndScore => {return noteAndScore.note})
     }
 
     return(
