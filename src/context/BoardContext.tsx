@@ -7,7 +7,7 @@ export type SidebarData = {
 }
 
 export type BoardAction = {
-    type: "open" | "pan" | "clear" | "search",
+    type: "open" | "pan" | "clear" | "search" | "boardMenu",
     noteId: string | null
 }
 

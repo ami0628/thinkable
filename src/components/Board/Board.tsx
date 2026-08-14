@@ -7,9 +7,10 @@ import ExpandedNote from "../Note/ExpandedNote"
 import Popup from "../Popup/Popup";
 import { useEffect, useState, useRef } from "react"
 import { useBoard } from "../../context/BoardContext";
-import { saveBoard, loadBoard } from "../../store/boardStore";
-import { useParams, useSearchParams } from "react-router-dom";
+import { saveBoard, loadBoard, getAllBoardDetails } from "../../store/boardStore";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Search, X } from "lucide-react";
+import { calculateTimeAgo } from "../../utils/helpers";
 
 const nodeTypes = {
     note: Note,
@@ -54,6 +55,8 @@ function Board(props:BoardProps){
     const [expandedNotes, setExpandedNotes] = useState<ExpandedWindow[]>([]);
     const [hasLoaded, setHasLoaded] = useState(false);
 
+    const fitViewWhenLoaded = useRef(false)
+
     const {
         pinnedNotes,
         recentNotes,
@@ -72,7 +75,8 @@ function Board(props:BoardProps){
         console.log(boardAction)
         if (boardAction !== null) {
             if (boardAction.type === "clear"){setNodes([]); loadPinnedNotes([]); loadRecentNotes([]);}
-            if (boardAction.type === "search") {toggleSearchBar();console.log("showSearchBar:" + showSearchBar)}
+            if (boardAction.type === "search"){toggleSearchBar();}
+            if (boardAction.type === "boardMenu"){toggleBoardMenu();}
             const noteToActOn = nodes.find(note => note.id == boardAction.noteId)
             if (!noteToActOn) {resetBoardAction(); return}
             if (boardAction.type === "open"){onExpand(noteToActOn);}
@@ -308,15 +312,23 @@ function Board(props:BoardProps){
         setPopup({action, noteId, data})
     }
 
-    // on initial render, load board
+    // owhen boardId changes (loading the page), load board
     useEffect(() => {
-        loadCurrentBoard()
-        setHasLoaded(true)
-    }, [])
+        console.log("Q2323")
+        setHasLoaded(false);
+        loadCurrentBoard(props.boardId);
+        setHasLoaded(true);
+        setShowBoardMenu(false);
+        console.log(props.noteToPanTo)
+        if (!props.noteToPanTo){fitViewWhenLoaded.current = true;}
+    }, [props.boardId])
 
+    // after nodes are loaded, fit view if necessary
     useEffect(() => {
-        if (props.noteToPanTo) {panTo(props.noteToPanTo,"snap")}
-    },[hasLoaded])
+        if (!hasLoaded) {return;}
+        if (props.noteToPanTo) {panTo(props.noteToPanTo,"snap"); return;}
+        if (fitViewWhenLoaded.current) {fitView();}
+    },[nodes, hasLoaded])
 
     function saveCurrentBoard(){
         if (!hasLoaded) {return}
@@ -350,11 +362,18 @@ function Board(props:BoardProps){
 
     }
 
-    function loadCurrentBoard(){
+    function loadCurrentBoard(boardId:string){
 
-        const boardData = loadBoard(props.boardId)
-        if (boardData === null) {return}
+        const boardData = loadBoard(boardId)
+        // if no boardData, make a new empty board
+        if (boardData === null) {
+            setNodes([])
+            loadRecentNotes([])
+            loadPinnedNotes([])
+            return;
+        }
 
+        // otherwise, recreate board from the data
         const noteList = boardData.notes.map((note: any) => ({
             ...note,
             data: {
@@ -368,7 +387,7 @@ function Board(props:BoardProps){
         setNodes(noteList);
         loadRecentNotes(boardData.recentNotes);
         loadPinnedNotes(boardData.pinnedNotes);
-        if (!props.noteToPanTo) {fitView()}
+        if (!props.noteToPanTo) {fitViewWhenLoaded.current = true;}
          
     }
 
@@ -417,7 +436,29 @@ function Board(props:BoardProps){
         return noteListWithScore.map(noteAndScore => {return noteAndScore.note})
     }
 
+    useEffect(() => {
+        if(showSearchBar){searchInputRef.current?.focus()}
+    }, [showSearchBar])
+
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
     // END OF SEARCH DATA / FUNCTIONS /////////////////////////////////////////////////////////////////////////////////
+
+
+    // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
+    let allBoardDetails = getAllBoardDetails();
+    const [showBoardMenu,setShowBoardMenu] = useState(false)
+    function toggleBoardMenu() {
+        setShowBoardMenu(!showBoardMenu);
+        allBoardDetails = getAllBoardDetails();
+    }
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if(showBoardMenu){window.addEventListener("click",toggleBoardMenu)}
+        return () => window.removeEventListener("click", toggleBoardMenu)
+    }, [showBoardMenu])
+    // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
 
     return(
         <main className="board-container">
@@ -451,15 +492,15 @@ function Board(props:BoardProps){
             { showSearchBar &&
             <div className="board-search-container">
                 <Search/>
-                <input type="text" className="search" placeholder="Search notes" onChange={(event) => searchNotes(event.target.value)} onFocus={() => setSearching(true)} onBlur={() => setSearching(false)}></input>
+                <input ref={searchInputRef} type="text" className="search" placeholder="Search notes" onChange={(event) => searchNotes(event.target.value)} onFocus={() => setSearching(true)} onBlur={() => {setSearching(false); setShowSearchBar(false);}}></input>
                 <X className="close-icon" onClick={toggleSearchBar}/>
                 {searching && (titleMatches.length > 0 || textMatches.length > 0) &&
-                    <div className="search-dropdown" onClick={(event) => event.preventDefault()}>
+                    <div className="search-dropdown">
                         {titleMatches.length > 0 && <div className="search-matches">
                             <div className="search-dropdown-heading"> Title matches: </div>
                             { titleMatches &&
                                 titleMatches.map(note => (
-                                    <div className="search-result" onMouseDown={(event) => {event.preventDefault(); panTo(note.id,"animate")}}>
+                                    <div  key={note.id} className="search-result" onMouseDown={(event) => {panTo(note.id,"animate")}}>
                                         <p className="search-result-title"> {note.data.title} </p>
                                     </div>
                                 ))
@@ -471,7 +512,7 @@ function Board(props:BoardProps){
                             <div className="search-dropdown-heading"> Text matches: </div>
                             { textMatches &&
                                 textMatches.map(note => (
-                                    <div className="search-result"  onMouseDown={(event) => {event.preventDefault(); panTo(note.id,"animate")}}>
+                                    <div  key={note.id} className="search-result"  onMouseDown={(event) => {panTo(note.id,"animate")}}>
                                         <p className="search-result-title"> {note.data.title} </p>
                                         <p className="search-result-text-preview"> {note.data.text.length > 128? note.data.text.slice(0,128)+"..." : note.data.text}</p>
                                     </div>
@@ -482,6 +523,29 @@ function Board(props:BoardProps){
                     </div>
                 }
             </div>}
+            {showBoardMenu && 
+            <div className="dashboard-popup-overlay">
+                <div className="board-menu-card" onClick={(event) => event.stopPropagation()}>
+                    <div className="board-menu">
+                        <div className="board-menu-heading">  Saved boards </div>
+                        <div className="board-menu-body">
+
+                            {allBoardDetails &&
+                                allBoardDetails.map(board => (
+                                    <div  key={board.id}  className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
+                                        <p className="dashboard-card-title"> {board.id} </p>
+                                        <div>
+                                        <p className="dashboard-card-title"> {board.noteCount} notes </p>
+                                        <p className="last-opened big"> Last opened: {calculateTimeAgo(board.lastOpened)} </p>
+                                        </div> 
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            }
         </main>
     );
 }

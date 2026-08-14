@@ -5,6 +5,7 @@ import { Search, SquarePlus, Brain, Clock, Pin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import type { SavedNote } from "../../store/boardStore";
+import { calculateTimeAgo } from "../../utils/helpers";
 
 function Dashboard (){
 
@@ -44,24 +45,6 @@ function Dashboard (){
     const allBoardDetails:{id:string, noteCount:number, lastOpened:number}[] | null = getAllBoardDetails();
     const excessBoards = allBoardDetails ? allBoardDetails.length > 4 : false;
     const boardsToList = excessBoards ? allBoardDetails?.slice(0,3) : allBoardDetails
-
-    function calculateTimeAgo(lastOpened:number){
-        const difference = Date.now() - lastOpened;
-        const seconds = Math.floor(difference / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24)
-        const weeks = Math.floor(days / 7)
-        const months = Math.floor(weeks / 4)
-
-        if (seconds < 60) {return "just now";}
-        if (minutes < 60) {return minutes.toString() + "m ago";}
-        if (hours < 24) {return hours.toString() + "h ago";}
-        if (days < 7) {return days.toString() + "d ago";}
-        if (weeks < 4) {return weeks.toString() + "w ago";}
-        return months.toString + "mo ago"
-
-    }
 
     const [titleMatches,setTitleMatches] = useState<SavedNote[]>([])
     const [textMatches,setTextMatches] = useState<SavedNote[]>([])
@@ -119,7 +102,7 @@ function Dashboard (){
                                         <div className="search-dropdown-heading"> Title matches: </div>
                                         { titleMatches &&
                                             titleMatches.map(note => (
-                                                <div className="search-result" onMouseDown={(event) => {event.preventDefault();navigate(`/board/${note.boardId}?note=${note.id}`)}}>
+                                                <div key={note.id} className="search-result" onMouseDown={(event) => {event.preventDefault();navigate(`/board/${note.boardId}?note=${note.id}`)}}>
                                                     <p className="search-result-title"> {note.data.title} </p>
                                                     <div className="search-result-text-preview"/> {/* keeps styling consistent */}
                                                     <p className="search-result-board"> Board: {note.boardId} </p>
@@ -133,7 +116,7 @@ function Dashboard (){
                                         <div className="search-dropdown-heading"> Text matches: </div>
                                         { textMatches &&
                                             textMatches.map(note => (
-                                                <div className="search-result" onMouseDown={(event) => {event.preventDefault();navigate(`/board/${note.boardId}?note=${note.id}`)}}>
+                                                <div key={note.id} className="search-result" onMouseDown={(event) => {event.preventDefault();navigate(`/board/${note.boardId}?note=${note.id}`)}}>
                                                     <p className="search-result-title"> {note.data.title} </p>
                                                     <p className="search-result-text-preview"> {note.data.text.length > 128? note.data.text.slice(0,128)+"..." : note.data.text}</p>
                                                     <p className="search-result-board"> Board: {note.boardId} </p>
@@ -178,7 +161,7 @@ function Dashboard (){
                                 </div>}
                             {allBoardDetails && boardsToList &&
                                 boardsToList.map(board => {return(
-                                    <div className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
+                                    <div  key={board.id} className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
                                         <p className="dashboard-card-title"> {board.id} </p>
                                         <div>
                                         <p className="dashboard-card-title"> {board.noteCount} notes </p>
@@ -201,7 +184,7 @@ function Dashboard (){
                             <hr></hr>
                             <div className="pins">
                                 {allPinnedNotes && allPinnedNotes.map(note => (
-                                    <div className="dashboard-card dashboard-note pin" onClick={() => navigate(`/board/${note.boardId}?note=${note.noteId}`)}>
+                                    <div  key={note.noteId}  className="dashboard-card dashboard-note pin" onClick={() => navigate(`/board/${note.boardId}?note=${note.noteId}`)}>
                                         <p className="dashboard-note-title"> {note.title} </p>
                                         <p className="dashboard-note-details"> Board: {note.boardId}</p>
                                         <p className="dashboard-note-details">Last accessed: {calculateTimeAgo(note.lastOpened)}</p>
@@ -219,7 +202,7 @@ function Dashboard (){
                             <hr></hr>
                             <div className="recents">
                                 {allRecentNotes && allRecentNotes.map(note => (
-                                    <div className="dashboard-card dashboard-note" onClick={() => navigate(`/board/${note.boardId}?note=${note.noteId}`)}>
+                                    <div  key={note.noteId} className="dashboard-card dashboard-note" onClick={() => navigate(`/board/${note.boardId}?note=${note.noteId}`)}>
                                         <p className="dashboard-note-title"> {note.title} </p>
                                         <p className="dashboard-note-details"> Board: {note.boardId}</p>
                                         <p className="dashboard-note-details">Last accessed: {calculateTimeAgo(note.lastOpened)}</p>
@@ -260,7 +243,7 @@ function Dashboard (){
 
                                 {allBoardDetails &&
                                     allBoardDetails.map(board => (
-                                        <div className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
+                                        <div  key={board.id} className="dashboard-card small" onClick={() => {navigate(`/board/${board.id}`)}}>
                                             <p className="dashboard-card-title"> {board.id} </p>
                                             <div>
                                             <p className="dashboard-card-title"> {board.noteCount} notes </p>
