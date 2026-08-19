@@ -447,7 +447,6 @@ function Board(props:BoardProps){
 
     // END OF SEARCH DATA / FUNCTIONS /////////////////////////////////////////////////////////////////////////////////
 
-
     // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
     let allBoardDetails = getAllBoardDetails();
     const [showBoardMenu,setShowBoardMenu] = useState(false)
@@ -457,31 +456,37 @@ function Board(props:BoardProps){
     }
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if(showBoardMenu){window.addEventListener("click",toggleBoardMenu)}
-        return () => window.removeEventListener("click", toggleBoardMenu)
-    }, [showBoardMenu])
     // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
 
     // CreateBoard DATA / FUNCTIONS //////////////////////////////////
     const [showCreateBoard,setShowCreateBoard] = useState(false);
-    function toggleOverlay(){setShowCreateBoard(!showCreateBoard)}
+    function toggleCreateBoard(){setShowCreateBoard(!showCreateBoard)}
 
     const [boardName, setBoardName] = useState("");
     const [validName, setValidName] = useState(true);
 
     useEffect(() => {
+        console.log(showCreateBoard)
         if (!showCreateBoard) {setBoardName("")}
-        if(showCreateBoard){window.addEventListener("click",toggleOverlay)}
-        return () => window.removeEventListener("click", toggleOverlay)
     }, [showCreateBoard])
 
     function createBoard(){
-        if (loadBoard(boardName) == null) {navigate("/board/" + boardName.toString()); toggleOverlay();}
+        if (loadBoard(boardName) == null) {navigate("/board/" + boardName.toString()); toggleCreateBoard();}
         else {setValidName(false);}
     }
 
     // END OF CreateBoard DATA / FUNCTIONS ///////////////////////////
+
+    function handleClosingOverlays(){
+        console.log(showCreateBoard)
+        if (showCreateBoard) {toggleCreateBoard()}
+        else {toggleBoardMenu()}
+    }
+
+    useEffect(() => {
+        if(showBoardMenu){window.addEventListener("click",handleClosingOverlays)}
+        return () => window.removeEventListener("click", handleClosingOverlays)
+    }, [showBoardMenu, showCreateBoard])
 
     return(
         <main className="board-container">
@@ -583,7 +588,7 @@ function Board(props:BoardProps){
                         {!validName && <p className="warning-text"> A board with that name already exists. </p>} 
                         </div>
                         <div className="create-board-buttons">
-                            <button className="button cancel" onClick={toggleOverlay}> Cancel </button>
+                            <button className="button cancel" onClick={toggleCreateBoard}> Cancel </button>
                             <button className="button create" onClick={createBoard}> Create </button>
                         </div>
                     </div>
