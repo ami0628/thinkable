@@ -304,15 +304,16 @@
     height: 100%;
     width: 100%;
 
-    padding:10px;
-    padding-top:5px;
+    padding:40px;
+    padding-top:10px;
+    padding-bottom:10px;
 }
 
 .board-menu-heading{
     font-size: 2em;
     color:var(--primary);
     text-align: center;
-    border-bottom: solid 1px var(--primary);
+    border-bottom: solid 1px var(--primary-other);
 }
 
 .board-menu-body{

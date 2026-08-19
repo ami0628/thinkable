@@ -20,6 +20,7 @@ function Dashboard (){
     function toggleBoardMenu(){setShowBoardMenu(!showBoardMenu)}
 
     useEffect(() => {
+        if (!showCreateBoard) {setBoardName("")}
         if(showCreateBoard){window.addEventListener("click",toggleOverlay)}
         return () => window.removeEventListener("click", toggleOverlay)
     }, [showCreateBoard])

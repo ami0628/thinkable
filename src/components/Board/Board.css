@@ -34,3 +34,46 @@
     background-color: var(--surface);
     cursor: pointer;
 }
+
+.board-menu-footer{
+    display: flex;
+    justify-content: space-around;
+    padding-top:20px;
+    width:100%;
+    align-self: center;
+    border-top:solid 1px var(--primary-other);
+}
+
+.board-menu-footer button{
+    width:15%;
+    height:2.7em;
+
+    border-radius: var(--radius-sm);
+
+    cursor:pointer;
+    transition: var(--transition-fast);
+}
+
+.board-menu-footer .close{
+    background-color: var(--surface-hover);
+    color: var(--text-primary);
+    border: solid 1px var(--border);
+}
+
+.board-menu-footer .close:hover{
+    background-color: var(--surface-other);
+    border-color: var(--text-muted);
+    box-shadow: none;
+}
+
+.board-menu-footer .create{
+    background-color: var(--primary);
+    color: var(--surface-light);
+    border: solid 1px var(--primary);
+}
+
+.board-menu-footer .create:hover{
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    box-shadow: var(--shadow-sm);
+}

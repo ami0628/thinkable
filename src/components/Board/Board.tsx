@@ -9,7 +9,7 @@ import { useEffect, useState, useRef } from "react"
 import { useBoard } from "../../context/BoardContext";
 import { saveBoard, loadBoard, getAllBoardDetails } from "../../store/boardStore";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { calculateTimeAgo } from "../../utils/helpers";
 
 const nodeTypes = {
@@ -324,10 +324,13 @@ function Board(props:BoardProps){
     }, [props.boardId])
 
     // after nodes are loaded, fit view if necessary
+    const [,] = useState(false)
     useEffect(() => {
         if (!hasLoaded) {return;}
+
         if (props.noteToPanTo) {panTo(props.noteToPanTo,"snap"); return;}
         if (fitViewWhenLoaded.current) {fitView();}
+        fitViewWhenLoaded.current = false;
     },[nodes, hasLoaded])
 
     function saveCurrentBoard(){
@@ -460,6 +463,26 @@ function Board(props:BoardProps){
     }, [showBoardMenu])
     // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
 
+    // CreateBoard DATA / FUNCTIONS //////////////////////////////////
+    const [showCreateBoard,setShowCreateBoard] = useState(false);
+    function toggleOverlay(){setShowCreateBoard(!showCreateBoard)}
+
+    const [boardName, setBoardName] = useState("");
+    const [validName, setValidName] = useState(true);
+
+    useEffect(() => {
+        if (!showCreateBoard) {setBoardName("")}
+        if(showCreateBoard){window.addEventListener("click",toggleOverlay)}
+        return () => window.removeEventListener("click", toggleOverlay)
+    }, [showCreateBoard])
+
+    function createBoard(){
+        if (loadBoard(boardName) == null) {navigate("/board/" + boardName.toString()); toggleOverlay();}
+        else {setValidName(false);}
+    }
+
+    // END OF CreateBoard DATA / FUNCTIONS ///////////////////////////
+
     return(
         <main className="board-container">
             <ReactFlow nodes={nodes} nodeTypes={nodeTypes} nodesDraggable={true} minZoom={0.1} maxZoom={8} zoomOnDoubleClick={false}
@@ -542,10 +565,30 @@ function Board(props:BoardProps){
                                 ))
                             }
                         </div>
+                        <div className="board-menu-footer">
+                            <button className="button close" onClick={toggleBoardMenu}> Close </button>
+                            <button className="button create" onClick={() => setShowCreateBoard(true)}> New board </button>
+                        </div>
                     </div>
                 </div> 
             </div>
             }
+            {showCreateBoard && 
+            <div className="dashboard-popup-overlay">
+                <div className="create-board-card" onClick={(event) => event.stopPropagation()}>
+                    <div className="create-board">
+                        <p className="create-board-title"> Create a new Board </p>
+                        <div className="input-warning-container">
+                        <input className={`${!validName && "warning"}`} value={boardName} onChange={(event) => {setBoardName(event.target.value); setValidName(true)}}type="text" placeholder="Name"/>
+                        {!validName && <p className="warning-text"> A board with that name already exists. </p>} 
+                        </div>
+                        <div className="create-board-buttons">
+                            <button className="button cancel" onClick={toggleOverlay}> Cancel </button>
+                            <button className="button create" onClick={createBoard}> Create </button>
+                        </div>
+                    </div>
+                </div> 
+            </div>}
         </main>
     );
 }
