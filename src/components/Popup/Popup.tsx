@@ -1,27 +1,35 @@
 import "./Popup.css"
 
+type PopupProps = {
+    action: "close" | "delete" | "save"
+    target: "note" | "board"
+    data:{
+        title: string | null
+    }
+}
+
 function Popup(props:any){
 
-    let headingText = "";
-    let contextText = "";
-    let confirmText = "";
+    let headingText = "invalid arguments for popup creation";
+    let contextText = "invalid arguments for popup creation";
+    let confirmText = "invalid arguments for popup creation";
 
-    if (props.action == "close"){
+    if (props.action == "close" && props.target =="note"){
         headingText = "Close note?";
         contextText = "All unsaved changes will be lost.";
         confirmText = "Close";
     }
 
-    if (props.action == "delete"){
-        headingText = "Delete note?";
-        contextText = "Deletion is permanent, note will be lost forever!";
-        confirmText = "Delete";
-    }
-
-    if (props.action == "save"){
+    if (props.action == "save" && props.target =="note"){
         headingText = "Save changes?";
         contextText = "Previous information will be overwritten.";
         confirmText = "Save";
+    }
+
+    if (props.action == "delete"){
+        headingText = "Delete " + props.target + " '" + props.data.title + "'?";
+        contextText = "Deletion is permanent, " + props.target + " will be lost forever!";
+        confirmText = "Delete";
     }
 
 

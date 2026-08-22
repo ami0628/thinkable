@@ -93,7 +93,7 @@ function Note(props:any){
 
     function handleDelete(){
         if (data.title=="New note" && data.text=="Text will display here."){data.removeNode(props.id);}
-        else {data.requestPopup("delete", props.id);}
+        else {data.requestPopup("delete", props.id, {title:data.title});}
         return
     }
 
