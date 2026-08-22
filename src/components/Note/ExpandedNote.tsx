@@ -81,7 +81,7 @@ function ExpandedNote (props:any){
             // force fresh measurement - shrinks properly
             titleRef.current.style.width = "0px";
             // set titleInput to correct length to exactly house all text
-            titleRef.current.style.width = `${titleRef.current.scrollWidth}px`
+            titleRef.current.style.width = `${titleRef.current.scrollWidth + 10}px`
         }
     }
     useEffect(() =>{
