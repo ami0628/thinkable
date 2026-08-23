@@ -1,11 +1,12 @@
 import Header from "../../components/Header/Header";
 import { loadBoard, getMostRecentlyOpened, getAllBoardDetails, getAllNotesOfType, getAllNotes } from "../../store/boardStore";
 import "./Dashboard.css";
-import { Search, SquarePlus, Brain, Clock, Pin } from "lucide-react";
+import { Search, SquarePlus, Brain, Clock, Pin, HelpCircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import type { SavedNote } from "../../store/boardStore";
 import { calculateTimeAgo } from "../../utils/helpers";
+import BoardListItem from "../../components/BoardListItem/BoardListItem";
 
 function Dashboard (){
 
@@ -17,7 +18,7 @@ function Dashboard (){
     const [validName, setValidName] = useState(true);
 
     const [showBoardMenu, setShowBoardMenu] = useState(false);
-    function toggleBoardMenu(){setShowBoardMenu(!showBoardMenu)}
+    function toggleBoardMenu(){setShowDropdown("",false);setShowBoardMenu(!showBoardMenu)}
 
     useEffect(() => {
         if (!showCreateBoard) {setBoardName("")}
@@ -44,8 +45,7 @@ function Dashboard (){
     const [searching,setSearching] = useState(false);
 
     const allBoardDetails:{id:string, noteCount:number, lastOpened:number}[] | null = getAllBoardDetails();
-    const excessBoards = allBoardDetails ? allBoardDetails.length > 4 : false;
-    const boardsToList = excessBoards ? allBoardDetails?.slice(0,3) : allBoardDetails
+    const boardsToList = allBoardDetails?.slice(0,3)
 
     const [titleMatches,setTitleMatches] = useState<SavedNote[]>([])
     const [textMatches,setTextMatches] = useState<SavedNote[]>([])
@@ -85,6 +85,11 @@ function Dashboard (){
         noteListWithScore.sort((a,b) => b.score - a.score)
 
         return noteListWithScore.map(noteAndScore => {return noteAndScore.note})
+    }
+
+    const [openDropdownId,setOpenDropdownId] = useState<String | null>(null);
+    function setShowDropdown(id:string, value:boolean){
+        setOpenDropdownId(value ? id : null)
     }
 
     return(
@@ -171,9 +176,9 @@ function Dashboard (){
                                     </div>
                                 )})
                             }
-                            {allBoardDetails && excessBoards &&
+                            {allBoardDetails &&
                                 <div className="dashboard-card small center-text" onClick={(event) => {event.stopPropagation(); toggleBoardMenu()}}>
-                                    <p className="dashboard-card-title"> More boards... </p>
+                                    <p className="dashboard-card-title"> All boards </p>
                                 </div>
                             }
                         </div>
@@ -237,20 +242,21 @@ function Dashboard (){
                 }
                 {showBoardMenu && 
                 <div className="dashboard-popup-overlay">
-                    <div className="board-menu-card" onClick={(event) => event.stopPropagation()}>
+                    <div className="board-menu-card" onClick={(event) => {setShowDropdown("",false);event.stopPropagation()}}>
                         <div className="board-menu">
                             <div className="board-menu-heading">  Saved boards </div>
                             <div className="board-menu-body">
 
                                 {allBoardDetails &&
-                                    allBoardDetails.map(board => (
-                                        <div  key={board.id} className="dashboard-card small" onClick={() => {navigate(`/board/${board.id}`)}}>
-                                            <p className="dashboard-card-title"> {board.id} </p>
-                                            <div>
-                                            <p className="dashboard-card-title"> {board.noteCount} notes </p>
-                                            <p className="last-opened big"> Last opened: {calculateTimeAgo(board.lastOpened)} </p>
-                                            </div> 
-                                        </div>
+                                    allBoardDetails.map((board,index) => (
+                                        <BoardListItem
+                                            id={board.id}
+                                            noteCount={board.noteCount}
+                                            lastOpened={board.lastOpened}
+                                            showDropdown={openDropdownId === board.id}
+                                            setShowDropdown={setShowDropdown}
+                                            className={((index + 1) % 4) === 0 ? "fourth" : ""}
+                                        />
                                     ))
                                 }
                             </div>

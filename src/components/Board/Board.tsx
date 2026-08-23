@@ -498,6 +498,8 @@ function Board(props:BoardProps){
             {popup &&
                 <Popup
                     action = {popup.action}
+                    target={"note"}
+                    data={{title:popup.data.title}}
                     cancel = { () => {setPopup(null);} }
                     confirm = {() => {
                         if (popup.action === "delete"){removeNode(popup.noteId)}

@@ -1,14 +1,16 @@
 import "./Popup.css"
 
-type PopupProps = {
+export type PopupProps = {
     action: "close" | "delete" | "save"
     target: "note" | "board"
     data:{
         title: string | null
     }
+    cancel: () => void
+    confirm: (data:any) => void
 }
 
-function Popup(props:any){
+function Popup(props:PopupProps){
 
     let headingText = "invalid arguments for popup creation";
     let contextText = "invalid arguments for popup creation";
@@ -35,8 +37,8 @@ function Popup(props:any){
 
 
     return(
-        <div className="overlay">
-            <div className="popup">
+        <div className="overlay" onClick={(event) => {event.stopPropagation(); props.cancel();}}>
+            <div className="popup" onClick={(event) => event.stopPropagation()}>
                 <div className="text-container">
                     <h3>{headingText}</h3>
                     <p>{contextText}</p>

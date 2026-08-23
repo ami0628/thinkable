@@ -1,0 +1,113 @@
+.board-list-item{
+    background-color: var(--surface-light);
+
+    border:solid 1px var(--border);
+    border-radius: var(--radius-sm);
+
+    transition: var(--transition-fast);
+    user-select: none;
+
+    height:100px;
+    width:20%;
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    position: relative;
+
+    z-index: 1;
+
+}
+
+.board-list-item:hover{
+    transform: translateY(-2px);
+    border: solid 1px var(--text-primary);
+    background-color: var(--surface);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+}
+
+.board-list-item .ellipsis{
+    width:1.7em;
+    height:1.7em;
+    padding:1%;
+
+    background-color: transparent;
+    color:transparent;
+
+    border-radius: var(--radius-sm);
+
+    transition: var(--transition-fast);
+
+    position: absolute;
+    right: 6px;
+    top:6px;
+}
+
+.board-list-item:hover .ellipsis{
+    color:var(--text-muted);
+    background-color: inherit;
+}
+
+.board-list-item .ellipsis:hover{
+    background-color: var(--surface-hover);
+    color:var(--text-primary);
+}
+
+.board-list-item .dropdown{
+    position:absolute;
+    display: flex;
+    flex-direction: column;
+    gap:2px;
+    background-color: var(--dropdown-bg);
+    top:12px;
+    right:-97px;
+    border-radius: 4px;
+    font-size: 0.9em;
+
+    padding:2px;
+
+    z-index: 99999 !important;
+}
+
+.board-list-item.fourth .dropdown{
+    top:12px;
+    right:35px;
+}
+
+.board-list-item.dropdown-visible{
+    z-index: 99999 !important;
+}
+
+.board-list-item.dropdown-visible:hover{
+    z-index: 99999 !important;
+}
+
+
+.board-list-item .dropdown button{
+    background: transparent;
+    border: none;
+    color: var(--surface);
+
+    border-radius:2px;
+
+    display: flex;
+    align-items: center;
+    gap:6px;
+
+    padding:6px;
+
+    font-size: 0.8em;
+
+}
+.board-list-item .dropdown button:hover{
+    cursor: pointer;
+    background-color: var(--dropdown-hover);
+}
+
+.board-list-item .dropdown button .icon{
+    width: 1.2em;
+    height:1.2em;
+}

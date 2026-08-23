@@ -121,3 +121,14 @@ export function getAllNotes():SavedNote[]{
     // sets all boards to their array of notes and "flattens" together into one array
     return savedBoards.flatMap(board => board.notes)
 }
+
+export function deleteBoard(boardId:string){
+    let savedBoards:SavedBoard[] | null = getSavedBoards()
+    if (!savedBoards) {return}
+
+    savedBoards = savedBoards.filter(board => board.id !== boardId)
+    const json = JSON.stringify(savedBoards)
+
+    localStorage.setItem("boards", json)
+    console.log("deleting " + boardId)
+}
