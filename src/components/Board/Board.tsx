@@ -11,6 +11,7 @@ import { saveBoard, loadBoard, getAllBoardDetails } from "../../store/boardStore
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Plus, Search, X } from "lucide-react";
 import { calculateTimeAgo } from "../../utils/helpers";
+import BoardListItem from "../BoardListItem/BoardListItem";
 
 const nodeTypes = {
     note: Note,
@@ -488,6 +489,11 @@ function Board(props:BoardProps){
         return () => window.removeEventListener("click", handleClosingOverlays)
     }, [showBoardMenu, showCreateBoard])
 
+    const [openDropdownId,setOpenDropdownId] = useState<String | null>(null);
+    function setShowDropdown(id:string, value:boolean){
+        setOpenDropdownId(value ? id : null)
+    }
+
     return(
         <main className="board-container">
             <ReactFlow nodes={nodes} nodeTypes={nodeTypes} nodesDraggable={true} minZoom={0.1} maxZoom={8} zoomOnDoubleClick={false}
@@ -561,14 +567,15 @@ function Board(props:BoardProps){
                         <div className="board-menu-body">
 
                             {allBoardDetails &&
-                                allBoardDetails.map(board => (
-                                    <div  key={board.id}  className="dashboard-card small" onClick={() => navigate(`/board/${board.id}`)}>
-                                        <p className="dashboard-card-title"> {board.id} </p>
-                                        <div>
-                                        <p className="dashboard-card-title"> {board.noteCount} notes </p>
-                                        <p className="last-opened big"> Last opened: {calculateTimeAgo(board.lastOpened)} </p>
-                                        </div> 
-                                    </div>
+                                allBoardDetails.map((board,index) => (
+                                    <BoardListItem
+                                        id={board.id}
+                                        noteCount={board.noteCount}
+                                        lastOpened={board.lastOpened}
+                                        showDropdown={openDropdownId === board.id}
+                                        setShowDropdown={setShowDropdown}
+                                        className={((index + 1) % 4) === 0 ? "fourth" : ""}
+                                    />
                                 ))
                             }
                         </div>
