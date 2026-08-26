@@ -21,6 +21,11 @@
 
 }
 
+.board-list-item p{
+    margin: 0;
+    text-align: center;
+}
+
 .board-list-item:hover{
     transform: translateY(-2px);
     border: solid 1px var(--text-primary);

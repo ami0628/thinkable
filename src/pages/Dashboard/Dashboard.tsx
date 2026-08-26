@@ -7,6 +7,8 @@ import { useRef, useState, useEffect } from "react";
 import type { SavedNote } from "../../store/boardStore";
 import { calculateTimeAgo } from "../../utils/helpers";
 import BoardListItem from "../../components/BoardListItem/BoardListItem";
+import { createPortal } from "react-dom";
+import Popup from "../../components/Popup/Popup";
 
 function Dashboard (){
 
@@ -140,6 +142,20 @@ function Dashboard (){
                             <p> New board </p>
                             <SquarePlus className="icon"/>
                             <p> Start thinking with a blank canvas. </p>
+                            {showCreateBoard && createPortal(
+                                <Popup
+                                    action={"create"}
+                                    target={"board"}
+                                    data={{title:""}}
+                                    cancel={toggleOverlay}
+                                    confirm={(boardName) => {
+                                        toggleOverlay();
+                                        navigate(`/board/${boardName}`)
+                                    }}
+                                />,
+                                document.body             
+                        )
+                        }
                         </div>
                         {mostRecentBoard && 
                             <div className="dashboard-card big" onClick={() => navigate(`/board/${mostRecentBoard?.id}`)}>

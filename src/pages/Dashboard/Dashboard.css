@@ -68,6 +68,11 @@
     justify-content: space-around;
 }
 
+.board-choices-big p{
+    margin: 0;
+    text-align: center;
+}
+
 .dashboard-card.big{
     min-height:220px;
     width: 400px;
@@ -145,6 +150,11 @@
     width: 100%;
 }
 
+.board-choices p{
+    margin:0;
+    text-align: center;
+}
+
 .dashboard-card.small{
     height:100px;
     width:20%;
@@ -153,6 +163,10 @@
     flex-direction: column;
     justify-content: space-between;
     padding: 10px;
+}
+
+.dashboard-card.dashboard-note p{
+    margin: 0;
 }
 
 .dashboard-card.small.more{
@@ -227,6 +241,10 @@
     align-items: center;
 
     position: relative;
+}
+
+.search-container p{
+    margin: 0;
 }
 
 .search{

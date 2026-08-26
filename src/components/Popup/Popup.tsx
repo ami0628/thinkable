@@ -1,6 +1,6 @@
 import { loadBoard } from "../../store/boardStore"
 import "./Popup.css"
-import { useEffect, useRef, useState } from "react"
+import { Activity, useEffect, useRef, useState } from "react"
 
 export type PopupProps = {
     action: "close" | "delete" | "save" | "create" |"rename"
@@ -47,11 +47,11 @@ function Popup(props:PopupProps){
     }
 
     const [validBoardName, setValidBoardName] = useState(true)
-    const [boardName, setBoardName] = useState(props.data.title ?? "");
+    const [boardName, setBoardName] = useState((props.action == "rename" ? props.data.title : null) ?? "");
 
     function handleConfirm(){
         // if renaming, make sure id is valid first
-        if (props.action == "rename"){
+        if (props.action == "rename" || props.action == "create"){
             if (loadBoard(boardName) !== null || boardName == "") {setValidBoardName(false)}
             else{ props.confirm(boardName)}
         }
@@ -66,14 +66,14 @@ function Popup(props:PopupProps){
 
     return(
         <div className="overlay" onClick={(event) => {event.stopPropagation(); props.cancel();}}>
-            <div className="popup" onClick={(event) => event.stopPropagation()}>
+            <div className={`popup ${props.action}`} onClick={(event) => event.stopPropagation()}>
+                <p className="heading">{headingText}</p>
                 <div className="text-container">
-                    <h3>{headingText}</h3>
                     {props.action == "rename"|| props.action == "create"?
                     <p> <input ref={inputRef} className={`${!validBoardName && "warning"}`} value={boardName} onChange={(event) => {setBoardName(event.target.value); setValidBoardName(true)}}type="text" placeholder="Name"/></p>
                     : 
-                    <p>{contextText}</p>}
-                    {props.action == "rename" && !validBoardName && 
+                    <p className="context">{contextText}</p>}
+                    {props.action == "rename"|| props.action == "create" && !validBoardName && 
                     (boardName=="" ? <p className="warning-text"> Board name cannot be blank. </p> : <p className="warning-text"> A board with that name already exists. </p>)
                     }
                 </div>
