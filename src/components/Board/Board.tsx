@@ -321,15 +321,16 @@ function Board(props:BoardProps){
         setHasLoaded(true);
         setShowBoardMenu(false);
         console.log(props.noteToPanTo)
+        setNeedToPan(props.noteToPanTo ? true : false)
         if (!props.noteToPanTo){fitViewWhenLoaded.current = true;}
     }, [props.boardId])
 
     // after nodes are loaded, fit view if necessary
-    const [,] = useState(false)
+    const [needToPan,setNeedToPan] = useState(props.noteToPanTo ? true : false)
     useEffect(() => {
         if (!hasLoaded) {return;}
 
-        if (props.noteToPanTo) {panTo(props.noteToPanTo,"snap"); return;}
+        if (props.noteToPanTo && needToPan) {panTo(props.noteToPanTo,"snap"); setNeedToPan(false); return;}
         if (fitViewWhenLoaded.current) {fitView();}
         fitViewWhenLoaded.current = false;
     },[nodes, hasLoaded])
