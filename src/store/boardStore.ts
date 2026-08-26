@@ -132,3 +132,17 @@ export function deleteBoard(boardId:string){
     localStorage.setItem("boards", json)
     console.log("deleting " + boardId)
 }
+
+export function renameBoard(boardId:string, newId:string){
+    let savedBoards:SavedBoard[] | null = getSavedBoards()
+    if (!savedBoards) {return}
+
+    savedBoards = savedBoards.map(board => {
+        if (board.id == boardId){return {...board, id:newId}}
+        else{return board}
+    })
+    const json = JSON.stringify(savedBoards)
+
+    localStorage.setItem("boards", json)
+    console.log("renaming " + boardId)
+}

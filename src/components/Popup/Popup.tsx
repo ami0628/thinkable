@@ -1,7 +1,9 @@
+import { loadBoard } from "../../store/boardStore"
 import "./Popup.css"
+import { useEffect, useRef, useState } from "react"
 
 export type PopupProps = {
-    action: "close" | "delete" | "save"
+    action: "close" | "delete" | "save" | "create" |"rename"
     target: "note" | "board"
     data:{
         title: string | null
@@ -34,6 +36,32 @@ function Popup(props:PopupProps){
         confirmText = "Delete";
     }
 
+    if (props.action == "create"){
+        headingText = "Create a new Board";
+        confirmText = "Create";
+    }
+
+    if (props.action == "rename"){
+        headingText = "Rename " + props.target + " '" + props.data.title + "'?";
+        confirmText = "Rename";
+    }
+
+    const [validBoardName, setValidBoardName] = useState(true)
+    const [boardName, setBoardName] = useState(props.data.title ?? "");
+
+    function handleConfirm(){
+        // if renaming, make sure id is valid first
+        if (props.action == "rename"){
+            if (loadBoard(boardName) !== null || boardName == "") {setValidBoardName(false)}
+            else{ props.confirm(boardName)}
+        }
+        // otherwise, confirm as usual
+        else {props.confirm(boardName)}
+    }
+
+    const inputRef = useRef<HTMLInputElement>(null)
+    useEffect(() => {inputRef.current?.focus()},[inputRef.current])
+
 
 
     return(
@@ -41,11 +69,17 @@ function Popup(props:PopupProps){
             <div className="popup" onClick={(event) => event.stopPropagation()}>
                 <div className="text-container">
                     <h3>{headingText}</h3>
-                    <p>{contextText}</p>
+                    {props.action == "rename"|| props.action == "create"?
+                    <p> <input ref={inputRef} className={`${!validBoardName && "warning"}`} value={boardName} onChange={(event) => {setBoardName(event.target.value); setValidBoardName(true)}}type="text" placeholder="Name"/></p>
+                    : 
+                    <p>{contextText}</p>}
+                    {props.action == "rename" && !validBoardName && 
+                    (boardName=="" ? <p className="warning-text"> Board name cannot be blank. </p> : <p className="warning-text"> A board with that name already exists. </p>)
+                    }
                 </div>
                 <div className="buttons-container">
                     <button className="cancel" onClick={props.cancel}>Cancel</button>
-                    <button className={props.action} onClick={props.confirm}>{confirmText}</button>
+                    <button className={props.action} onClick={handleConfirm}>{confirmText}</button>
                 </div>
             </div>
         </div>

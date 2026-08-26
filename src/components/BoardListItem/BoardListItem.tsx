@@ -1,9 +1,9 @@
 import { calculateTimeAgo } from "../../utils/helpers"
 import { useNavigate } from "react-router-dom"
 import { Trash2, Ellipsis, Pencil } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Popup from "../../components/Popup/Popup"
-import { deleteBoard } from "../../store/boardStore";
+import { deleteBoard, renameBoard } from "../../store/boardStore";
 import { createPortal } from "react-dom";
 import "./BoardListItem.css"
 
@@ -20,9 +20,8 @@ type boardListItemProps = {
 function BoardListItem(props:boardListItemProps){
     const navigate = useNavigate();
 
-
     type popupData = {
-        action:"close" | "delete" | "save",
+        action:"close" | "delete" | "save" | "create" | "rename",
         target:"note" | "board",
         data:{title:string}
     }
@@ -32,6 +31,7 @@ function BoardListItem(props:boardListItemProps){
     }
 
     function handleRename(){
+        setPopup({action:"rename", target:"board", data:{title:props.id}})
     }
 
     return (
@@ -53,7 +53,12 @@ function BoardListItem(props:boardListItemProps){
                     target={"board"}
                     data={{title:props.id}}
                     cancel={() => setPopup(null)}
-                    confirm={() => {deleteBoard(props.id); setPopup(null); props.setShowDropdown(props.id,false)}}
+                    confirm={(newName) => {
+                        if (popup.action=="rename"){renameBoard(props.id,newName)}
+                        if (popup.action=="delete"){deleteBoard(props.id)}
+                        setPopup(null);
+                        props.setShowDropdown(props.id,false)
+                    }}
                 />,
                 document.body             
             )
