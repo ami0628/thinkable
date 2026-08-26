@@ -38,7 +38,7 @@ function Dashboard (){
     const mostRecentBoard = getMostRecentlyOpened();
 
     function createBoard(){
-        if (loadBoard(boardName) == null) {navigate("/board/" + boardName.toString());}
+        if ((loadBoard(boardName) == null) && boardName!=="") {navigate("/board/" + boardName.toString());}
         else {setValidName(false);}
     }
 
@@ -230,7 +230,7 @@ function Dashboard (){
                             <p className="create-board-title"> Create a new Board </p>
                             <div className="input-warning-container">
                             <input className={`${!validName && "warning"}`} value={boardName} onChange={(event) => {setBoardName(event.target.value); setValidName(true)}}type="text" placeholder="Name"/>
-                            {!validName && <p className="warning-text"> A board with that name already exists. </p>} 
+                            {!validName && (boardName=="" ? <p className="warning-text"> Board name cannot be blank. </p> : <p className="warning-text"> A board with that name already exists. </p>)} 
                             </div>
                             <div className="create-board-buttons">
                                 <button className="button cancel" onClick={toggleOverlay}> Cancel </button>
