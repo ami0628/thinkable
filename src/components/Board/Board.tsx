@@ -8,9 +8,8 @@ import Popup from "../Popup/Popup";
 import { useEffect, useState, useRef } from "react"
 import { useBoard } from "../../context/BoardContext";
 import { saveBoard, loadBoard, getAllBoardDetails } from "../../store/boardStore";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Plus, Search, X } from "lucide-react";
-import { calculateTimeAgo } from "../../utils/helpers";
+import { useNavigate } from "react-router-dom";
+import { Search, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import BoardListItem from "../BoardListItem/BoardListItem";
 
@@ -314,7 +313,7 @@ function Board(props:BoardProps){
         setPopup({action, noteId, data})
     }
 
-    // owhen boardId changes (loading the page), load board
+    // when boardId changes (loading the page), load board
     useEffect(() => {
         console.log("Q2323")
         setHasLoaded(false);
@@ -462,7 +461,7 @@ function Board(props:BoardProps){
     // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
 
     // CreateBoard DATA / FUNCTIONS //////////////////////////////////
-    
+
     const [showCreateBoard,setShowCreateBoard] = useState(false);
     function toggleCreateBoard(){setShowCreateBoard(!showCreateBoard)}
 
