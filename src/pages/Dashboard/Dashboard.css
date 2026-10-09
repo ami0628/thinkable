@@ -298,7 +298,7 @@
     display: flex;
     justify-content: center;
 
-    min-height:300px;
+    min-height:100px;
     width:1200px;
 
     background-color: var(--surface);
