@@ -462,21 +462,9 @@ function Board(props:BoardProps){
     // BoardMenu DATA / FUNCTIONS ////////////////////////////////////
 
     // CreateBoard DATA / FUNCTIONS //////////////////////////////////
+    
     const [showCreateBoard,setShowCreateBoard] = useState(false);
     function toggleCreateBoard(){setShowCreateBoard(!showCreateBoard)}
-
-    const [boardName, setBoardName] = useState("");
-    const [validName, setValidName] = useState(true);
-
-    useEffect(() => {
-        console.log(showCreateBoard)
-        if (!showCreateBoard) {setBoardName("")}
-    }, [showCreateBoard])
-
-    function createBoard(){
-        if (loadBoard(boardName) == null && boardName !== "") {navigate("/board/" + boardName.toString()); toggleCreateBoard();}
-        else {setValidName(false);}
-    }
 
     // END OF CreateBoard DATA / FUNCTIONS ///////////////////////////
 
@@ -538,7 +526,7 @@ function Board(props:BoardProps){
                             <div className="search-dropdown-heading"> Title matches: </div>
                             { titleMatches &&
                                 titleMatches.map(note => (
-                                    <div  key={note.id} className="search-result" onMouseDown={(event) => {panTo(note.id,"animate")}}>
+                                    <div  key={note.id} className="search-result" onMouseDown={() => {panTo(note.id,"animate")}}>
                                         <p className="search-result-title"> {note.data.title} </p>
                                     </div>
                                 ))
@@ -550,7 +538,7 @@ function Board(props:BoardProps){
                             <div className="search-dropdown-heading"> Text matches: </div>
                             { textMatches &&
                                 textMatches.map(note => (
-                                    <div  key={note.id} className="search-result"  onMouseDown={(event) => {panTo(note.id,"animate")}}>
+                                    <div  key={note.id} className="search-result"  onMouseDown={() => {panTo(note.id,"animate")}}>
                                         <p className="search-result-title"> {note.data.title} </p>
                                         <p className="search-result-text-preview"> {note.data.text.length > 128? note.data.text.slice(0,128)+"..." : note.data.text}</p>
                                     </div>
