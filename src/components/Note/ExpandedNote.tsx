@@ -95,13 +95,22 @@ function ExpandedNote (props:any){
         if (changesMade()){props.requestPopup(context, data.noteId, {title:outputTitle, text:outPutText, expandedWidth:data.width, expandedHeight:data.height})}
         else{props.onExit(data.noteId,{title:outputTitle, text:outPutText, expandedWidth:data.width, expandedHeight:data.height},context)}
     }
+
+    function handleKeyDown(event:React.KeyboardEvent){
+        const key = event.key
+        if (key === "Enter" && event.ctrlKey){handleExit("save")}
+        if (key === "Escape"){handleExit("close")}
+    }
     
     return(
-        <div className="expandedNote nowheel" style={{left:data.position.x, top:data.position.y, width:data.width, height:data.height}} ref={noteRef}>
+        <div className="expandedNote nowheel" style={{left:data.position.x, top:data.position.y, width:data.width, height:data.height}} ref={noteRef} onKeyDown={(event) => {handleKeyDown(event)}}>
             <div  className={`expandedNoteDragPoint ${grabbing? "grabbing" : ""}`} onMouseDown={startDrag}>
                 <div className="expandedNoteHeader">
                     <input className="titleInput nodrag" value={title} onChange={(event) => setTitle(event.target.value)} onMouseDown={(event)=>event.stopPropagation()} ref={titleRef}/>
-                    <div className="icons"> <Save className="icon" onClick={() => handleExit("save")} onMouseDown={(event)=>event.stopPropagation()}/> <X onClick={() => handleExit("close")} className="icon" onMouseDown={(event)=>event.stopPropagation()}/> </div>
+                    <div className="icons"> 
+                        <Save className="icon" onClick={() => handleExit("save")} onMouseDown={(event)=>event.stopPropagation()}/>
+                        <X onClick={() => handleExit("close")} className="icon" onMouseDown={(event)=>event.stopPropagation()}/>                        
+                    </div>
                 </div>
             </div>
             <div className="expandedNoteNoDrag">

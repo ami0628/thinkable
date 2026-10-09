@@ -46,6 +46,7 @@ function Popup(props:PopupProps){
         confirmText = "Rename";
     }
 
+
     const [validBoardName, setValidBoardName] = useState(true)
     const [boardName, setBoardName] = useState((props.action == "rename" ? props.data.title : null) ?? "");
 
@@ -61,6 +62,23 @@ function Popup(props:PopupProps){
 
     const inputRef = useRef<HTMLInputElement>(null)
     useEffect(() => {inputRef.current?.focus()},[inputRef.current])
+
+    useEffect(() => {
+        const timeoutId = window.setTimeout(() => {
+            window.addEventListener("keydown", handleKeyDown)
+        },0)
+
+        function handleKeyDown(event:KeyboardEvent){
+            const key = event.key
+            if (key === "Enter" ){handleConfirm()}
+            if (key === "Escape"){props.cancel()}
+        }
+
+        return () => {
+            window.clearTimeout(timeoutId)
+            window.removeEventListener("keydown",handleKeyDown)
+        }
+    },[props, boardName, validBoardName])
 
 
 
