@@ -58,6 +58,90 @@ function Board(props:BoardProps){
 
     const fitViewWhenLoaded = useRef(false)
 
+
+    // when boardId changes (loading the page), load board
+    useEffect(() => {
+        setHasLoaded(false);
+        loadCurrentBoard(props.boardId);
+        setHasLoaded(true);
+        setShowBoardMenu(false);
+        setExpandedNotes([])
+        console.log(props.noteToPanTo)
+        setNeedToPan(props.noteToPanTo ? true : false)
+        if (!props.noteToPanTo){fitViewWhenLoaded.current = true;}
+    }, [props.boardId])
+
+    // after nodes are loaded, fit view if necessary
+    const [needToPan,setNeedToPan] = useState(props.noteToPanTo ? true : false)
+    useEffect(() => {
+        if (!hasLoaded) {return;}
+
+        if (props.noteToPanTo && needToPan) {panTo(props.noteToPanTo,"snap"); setNeedToPan(false); return;}
+        if (fitViewWhenLoaded.current) {fitView();}
+        fitViewWhenLoaded.current = false;
+    },[nodes, hasLoaded])
+
+    function saveCurrentBoard(){
+        if (!hasLoaded) {return}
+        // convert board into persistent data
+
+        // board data is now an object of (all relevant note data, and the list of recentNotes)
+        const boardData = {
+            id: props.boardId,
+            notes: nodes.map(note => ({
+                id:note.id,
+                boardId:props.boardId,
+                type: note.type,
+                position:note.position,
+                data:{
+                    title: note.data.title,
+                    text: note.data.text,
+                    width: note.data.width,
+                    height: note.data.height,
+                    expandedWidth: note.data.expandedWidth,
+                    expandedHeight: note.data.expandedHeight,
+                    pinned: note.data.pinned
+                }
+            })),
+            recentNotes,
+            pinnedNotes,
+            lastOpened: Date.now()
+        }
+
+        saveBoard(boardData)
+
+
+    }
+
+    function loadCurrentBoard(boardId:string){
+
+        const boardData = loadBoard(boardId)
+        // if no boardData, make a new empty board
+        if (boardData === null) {
+            setNodes([])
+            loadRecentNotes([])
+            loadPinnedNotes([])
+            return;
+        }
+
+        // otherwise, recreate board from the data
+        const noteList = boardData.notes.map((note: any) => ({
+            ...note,
+            data: {
+                ...note.data,
+                onExpand,
+                updateNoteSize,
+                removeNode,
+                requestPopup
+            }
+        }));
+        setNodes(noteList);
+        loadRecentNotes(boardData.recentNotes);
+        loadPinnedNotes(boardData.pinnedNotes);
+        if (!props.noteToPanTo) {fitViewWhenLoaded.current = true;}
+         
+    }
+
     const {
         pinnedNotes,
         recentNotes,
@@ -313,88 +397,6 @@ function Board(props:BoardProps){
         setPopup({action, noteId, data})
     }
 
-    // when boardId changes (loading the page), load board
-    useEffect(() => {
-        console.log("Q2323")
-        setHasLoaded(false);
-        loadCurrentBoard(props.boardId);
-        setHasLoaded(true);
-        setShowBoardMenu(false);
-        console.log(props.noteToPanTo)
-        setNeedToPan(props.noteToPanTo ? true : false)
-        if (!props.noteToPanTo){fitViewWhenLoaded.current = true;}
-    }, [props.boardId])
-
-    // after nodes are loaded, fit view if necessary
-    const [needToPan,setNeedToPan] = useState(props.noteToPanTo ? true : false)
-    useEffect(() => {
-        if (!hasLoaded) {return;}
-
-        if (props.noteToPanTo && needToPan) {panTo(props.noteToPanTo,"snap"); setNeedToPan(false); return;}
-        if (fitViewWhenLoaded.current) {fitView();}
-        fitViewWhenLoaded.current = false;
-    },[nodes, hasLoaded])
-
-    function saveCurrentBoard(){
-        if (!hasLoaded) {return}
-        // convert board into persistent data
-
-        // board data is now an object of (all relevant note data, and the list of recentNotes)
-        const boardData = {
-            id: props.boardId,
-            notes: nodes.map(note => ({
-                id:note.id,
-                boardId:props.boardId,
-                type: note.type,
-                position:note.position,
-                data:{
-                    title: note.data.title,
-                    text: note.data.text,
-                    width: note.data.width,
-                    height: note.data.height,
-                    expandedWidth: note.data.expandedWidth,
-                    expandedHeight: note.data.expandedHeight,
-                    pinned: note.data.pinned
-                }
-            })),
-            recentNotes,
-            pinnedNotes,
-            lastOpened: Date.now()
-        }
-
-        saveBoard(boardData)
-
-
-    }
-
-    function loadCurrentBoard(boardId:string){
-
-        const boardData = loadBoard(boardId)
-        // if no boardData, make a new empty board
-        if (boardData === null) {
-            setNodes([])
-            loadRecentNotes([])
-            loadPinnedNotes([])
-            return;
-        }
-
-        // otherwise, recreate board from the data
-        const noteList = boardData.notes.map((note: any) => ({
-            ...note,
-            data: {
-                ...note.data,
-                onExpand,
-                updateNoteSize,
-                removeNode,
-                requestPopup
-            }
-        }));
-        setNodes(noteList);
-        loadRecentNotes(boardData.recentNotes);
-        loadPinnedNotes(boardData.pinnedNotes);
-        if (!props.noteToPanTo) {fitViewWhenLoaded.current = true;}
-         
-    }
 
     // SEARCH DATA / FUNCTIONS ////////////////////////////////////////////////////////////////////////////////////////
     const [showSearchBar, setShowSearchBar] = useState(false)
