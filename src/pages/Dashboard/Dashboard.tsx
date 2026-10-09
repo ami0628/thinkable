@@ -239,23 +239,6 @@ function Dashboard (){
                         </div>
                     </div>
                 </div>
-                {showCreateBoard && 
-                <div className="dashboard-popup-overlay">
-                    <div className="create-board-card" onClick={(event) => event.stopPropagation()}>
-                        <div className="create-board">
-                            <p className="create-board-title"> Create a new Board </p>
-                            <div className="input-warning-container">
-                            <input className={`${!validName && "warning"}`} value={boardName} onChange={(event) => {setBoardName(event.target.value); setValidName(true)}}type="text" placeholder="Name"/>
-                            {!validName && (boardName=="" ? <p className="warning-text"> Board name cannot be blank. </p> : <p className="warning-text"> A board with that name already exists. </p>)} 
-                            </div>
-                            <div className="create-board-buttons">
-                                <button className="button cancel" onClick={toggleOverlay}> Cancel </button>
-                                <button className="button create" onClick={createBoard}> Create </button>
-                            </div>
-                        </div>
-                    </div> 
-                </div>
-                }
                 {showBoardMenu && 
                 <div className="dashboard-popup-overlay">
                     <div className="board-menu-card" onClick={(event) => {setShowDropdown("",false);event.stopPropagation()}}>
