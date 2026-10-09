@@ -12,5 +12,5 @@ export function calculateTimeAgo(lastOpened:number){
     if (hours < 24) {return hours.toString() + "h ago";}
     if (days < 7) {return days.toString() + "d ago";}
     if (weeks < 4) {return weeks.toString() + "w ago";}
-    return months.toString + "mo ago"
+    return months.toString() + "mo ago"
 }
