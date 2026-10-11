@@ -24,6 +24,11 @@
     outline: solid 2px var(--primary);
 }
 
+.board-search-container .search-result{
+    padding-top:0;
+    padding-bottom:0;
+}
+
 .close-icon{
     padding:3px;
     width:2.2em;

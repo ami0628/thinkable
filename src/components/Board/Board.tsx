@@ -517,7 +517,7 @@ function Board(props:BoardProps){
                 />
             )}
             { showSearchBar &&
-            <div className="board-search-container">
+            <div className="board-search-container" onKeyDown={(event) => {if (event.key === "Escape"){toggleSearchBar()}}}>
                 <Search/>
                 <input ref={searchInputRef} type="text" className="search" placeholder="Search notes" onChange={(event) => searchNotes(event.target.value)} onFocus={() => setSearching(true)} onBlur={() => {setSearching(false); setShowSearchBar(false);}}></input>
                 <X className="close-icon" onClick={toggleSearchBar}/>
